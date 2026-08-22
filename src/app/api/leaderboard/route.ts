@@ -1,47 +1,19 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { realtime } from '@/lib/realtime';
+import { getLeaderboardData } from '@/lib/data';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const items = await db.item.findMany({
-      where: { status: 'APPROVED' },
-      orderBy: { totalBidAmount: 'desc' },
-      take: 100,
-    });
+    const data = await getLeaderboardData();
 
-    // Check active takeover
-    const now = new Date();
-    const activeTakeover = await db.item.findFirst({
-      where: {
-        isTakeover: true,
-        takeoverExpiresAt: { gt: now },
-        status: 'APPROVED',
-      },
-      orderBy: { takeoverExpiresAt: 'desc' },
-    });
-
-    const totalClicks = items.reduce((acc, cur) => acc + cur.clickCount, 0);
-    const topBid = items.length > 0 ? items[0].totalBidAmount : 0;
-    const takeoverPrice = Math.max(50, topBid > 0 ? topBid * 2 : 50);
-    const totalTransactions = await db.bidTransaction.count({ where: { status: 'COMPLETED' } });
-
-    return NextResponse.json({
-      items,
-      activeTakeover,
-      stats: {
-        totalItems: items.length,
-        totalClicks,
-        onlineVisitors: realtime.getOnlineVisitors(),
-        topBid,
-        takeoverPrice,
-        totalTransactions,
+    return NextResponse.json(data, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=2, stale-while-revalidate=5',
       },
     });
   } catch (error) {
-    console.error('Error fetching leaderboard:', error);
+    console.error('Error fetching leaderboard route:', error);
     return NextResponse.json({ error: 'Failed to load leaderboard' }, { status: 500 });
   }
 }

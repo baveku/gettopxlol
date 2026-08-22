@@ -6,20 +6,19 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    // Fetch last real completed transactions
-    const recentTransactions = await db.bidTransaction.findMany({
-      where: { status: 'COMPLETED' },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-      include: { item: true },
-    });
-
-    // Fetch last real click logs
-    const recentClicks = await db.clickLog.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-      include: { item: true },
-    });
+    const [recentTransactions, recentClicks] = await Promise.all([
+      db.bidTransaction.findMany({
+        where: { status: 'COMPLETED' },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        include: { item: true },
+      }),
+      db.clickLog.findMany({
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        include: { item: true },
+      }),
+    ]);
 
     const events: Array<{
       id: string;
@@ -54,22 +53,32 @@ export async function GET() {
       });
     });
 
-    // Sort by newest
     events.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-    return NextResponse.json({ events: events.slice(0, 6) });
+    return NextResponse.json(
+      { events: events.slice(0, 6) },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=2, stale-while-revalidate=5',
+        },
+      }
+    );
   } catch (error) {
     console.error('Error fetching activity:', error);
     return NextResponse.json({ events: [] });
   }
 }
 
-function formatTimeAgo(date: Date): string {
-  const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-  if (seconds < 60) return `${Math.max(1, seconds)}s ago`;
+function formatTimeAgo(dateString: string | Date): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) return "just now";
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m ago`;
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
 }
