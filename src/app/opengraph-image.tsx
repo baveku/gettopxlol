@@ -16,8 +16,8 @@ export default function OpenGraphImage() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#08090c',
-          backgroundImage: 'radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.15) 0%, transparent 60%)',
+          backgroundColor: '#000000',
+          backgroundImage: 'radial-gradient(circle at 50% 30%, rgba(245, 158, 11, 0.18) 0%, transparent 60%)',
           fontFamily: 'sans-serif',
           position: 'relative',
           padding: '60px',
@@ -27,7 +27,7 @@ export default function OpenGraphImage() {
           style={{
             position: 'absolute',
             inset: '24px',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
             borderRadius: '32px',
           }}
         />
@@ -38,35 +38,29 @@ export default function OpenGraphImage() {
             display: 'flex',
             alignItems: 'center',
             gap: '16px',
-            marginBottom: '28px',
+            marginBottom: '24px',
           }}
         >
           <div
             style={{
               width: '56px',
               height: '56px',
-              borderRadius: '20px',
+              borderRadius: '28px',
               background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               boxShadow: '0 0 40px rgba(245, 158, 11, 0.5)',
+              fontSize: '32px',
+              fontWeight: 900,
+              color: '#000000',
             }}
           >
-            <svg
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="#08090c"
-              stroke="#08090c"
-              strokeWidth="2"
-            >
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-            </svg>
+            ⚡
           </div>
           <span
             style={{
-              fontSize: '48px',
+              fontSize: '52px',
               fontWeight: 900,
               color: '#ffffff',
               letterSpacing: '-0.03em',
@@ -76,20 +70,40 @@ export default function OpenGraphImage() {
           </span>
         </div>
 
-        {/* Main Headline */}
-        <h1
+        {/* Main Headline with Highlighted X Badge */}
+        <div
           style={{
-            fontSize: '56px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '54px',
             fontWeight: 900,
             color: '#ffffff',
             textAlign: 'center',
             margin: '0 0 16px 0',
             letterSpacing: '-0.03em',
             lineHeight: 1.15,
+            gap: '14px',
           }}
         >
-          The Real-Time Spotlight for 𝕏 Accounts
-        </h1>
+          <span>The Real-Time Spotlight for</span>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#ffffff',
+              color: '#000000',
+              borderRadius: '16px',
+              padding: '0 16px',
+              fontSize: '48px',
+              fontWeight: 900,
+            }}
+          >
+            X
+          </div>
+          <span>Accounts</span>
+        </div>
 
         {/* Subtitle */}
         <p
@@ -118,8 +132,8 @@ export default function OpenGraphImage() {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              backgroundColor: 'rgba(245, 158, 11, 0.12)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
+              backgroundColor: 'rgba(245, 158, 11, 0.15)',
+              border: '1px solid rgba(245, 158, 11, 0.4)',
               borderRadius: '999px',
               padding: '10px 22px',
               color: '#fbbf24',
@@ -135,8 +149,8 @@ export default function OpenGraphImage() {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              backgroundColor: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
               borderRadius: '999px',
               padding: '10px 22px',
               color: '#e4e4e7',
@@ -144,7 +158,7 @@ export default function OpenGraphImage() {
               fontWeight: 600,
             }}
           >
-            ● Live 𝕏 Profiles
+            ● Live X Profiles
           </div>
         </div>
       </div>

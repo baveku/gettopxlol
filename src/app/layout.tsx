@@ -4,7 +4,7 @@ import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL('https://gettopx.lol'),
   title: {
-    default: 'GetTopX — The Real-Time Pay-to-Rank Spotlight for 𝕏 Accounts',
+    default: 'GetTopX — The Real-Time Pay-to-Rank Spotlight for X Accounts',
     template: '%s · GetTopX',
   },
   description:
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     shortcut: '/favicon.svg',
   },
   openGraph: {
-    title: 'GetTopX — The Real-Time Pay-to-Rank Spotlight for 𝕏 Accounts',
+    title: 'GetTopX — The Real-Time Pay-to-Rank Spotlight for X Accounts',
     description:
       'No ads, no algorithms, no gatekeepers. Outbid competitors in real time to claim the #1 spotlight for your X profile on gettopx.lol.',
     url: 'https://gettopx.lol',
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GetTopX — The Real-Time Pay-to-Rank Spotlight for 𝕏 Accounts',
+    title: 'GetTopX — The Real-Time Pay-to-Rank Spotlight for X Accounts',
     description:
       'No ads, no algorithms, no gatekeepers. Outbid competitors in real time to claim the #1 spotlight for your X profile on gettopx.lol.',
     creator: '@gettopxlol',
@@ -69,7 +69,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#08090c',
+  themeColor: '#000000',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
@@ -85,7 +85,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
-      <body className="min-h-full flex flex-col font-sans bg-[#08090c] text-zinc-100 selection:bg-amber-400 selection:text-zinc-950">
+      <body className="min-h-full flex flex-col font-sans bg-[#000000] text-[#e7e9ea] selection:bg-amber-400 selection:text-black">
         {children}
       </body>
     </html>
