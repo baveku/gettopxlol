@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { formatCurrency } from '@/lib/utils';
-import { Crown, Sparkles, Zap, PlusCircle } from 'lucide-react';
+import { Crown, Zap, PlusCircle } from 'lucide-react';
 
 interface UnclaimedRankCardProps {
   rank: number;
@@ -53,15 +53,15 @@ export function UnclaimedRankCard({
         }
       }}
     >
-      {/* Left: Rank + Placeholder Icon + Hook Description */}
+      {/* Left: Rank + Placeholder Avatar + Hook Description */}
       <div className="flex items-center gap-3 min-w-0 flex-1">
         <div className={badgeStyle}>
           {isTop1 ? <Crown className="size-4 text-amber-400" /> : `#${rank}`}
         </div>
 
-        {/* Empty Favicon Placeholder */}
-        <div className="size-9 sm:size-10 rounded-xl bg-zinc-900/50 border border-dashed border-white/10 flex items-center justify-center shrink-0 group-hover:border-amber-400/40 transition">
-          <PlusCircle className="size-4 text-zinc-600 group-hover:text-amber-400 transition" />
+        {/* Empty X Avatar Placeholder */}
+        <div className="size-10 sm:size-11 rounded-full bg-zinc-900/60 border border-dashed border-white/15 flex items-center justify-center shrink-0 group-hover:border-amber-400/40 transition">
+          <span className="text-zinc-500 font-mono font-bold text-xs group-hover:text-amber-400 transition">𝕏</span>
         </div>
 
         {/* Text */}
@@ -70,7 +70,7 @@ export function UnclaimedRankCard({
             <span className={`font-bold text-sm sm:text-base tracking-tight truncate ${
               isTop1 ? 'text-amber-300' : isTop2 ? 'text-slate-200' : isTop3 ? 'text-amber-200' : 'text-zinc-300'
             }`}>
-              {isTop1 ? '👑 #1 Apex Spotlight Available' : `Spot #${rank} Unclaimed`}
+              {isTop1 ? '👑 #1 Apex Spotlight on X' : `Spot #${rank} on X Open`}
             </span>
 
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
@@ -78,14 +78,14 @@ export function UnclaimedRankCard({
                 ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
                 : 'bg-zinc-800/80 text-zinc-400 border-white/5'
             }`}>
-              Open
+              Available
             </span>
           </div>
 
           <p className="text-xs text-zinc-400 truncate mt-0.5">
             {isTop1
-              ? 'No leader yet — Bid now to take the sovereign #1 spotlight!'
-              : `Claim rank #${rank} and capture real-time attention.`}
+              ? 'No leader yet — Enter your @handle to take the sovereign #1 crown on X!'
+              : `Claim rank #${rank} for your X profile and capture real-time attention.`}
           </p>
         </div>
       </div>

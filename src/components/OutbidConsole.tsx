@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { formatCurrency, cleanDomain } from '@/lib/utils';
-import { Sparkles, Globe, Loader2, Plus, Minus, Zap } from 'lucide-react';
+import { formatCurrency, cleanXHandle } from '@/lib/utils';
+import { Sparkles, Loader2, Plus, Minus, Zap } from 'lucide-react';
 
 interface OutbidConsoleProps {
   topBid: number;
@@ -29,7 +29,7 @@ export function OutbidConsole({
   presetTargetRankAmount,
 }: OutbidConsoleProps) {
   const [bidAmount, setBidAmount] = useState<number>(Math.max(2, topBid + 1));
-  const [urlInput, setUrlInput] = useState<string>('');
+  const [handleInput, setHandleInput] = useState<string>('');
   const [emailInput, setEmailInput] = useState<string>('');
   const [scrapedData, setScrapedData] = useState<{
     title: string;
@@ -48,7 +48,7 @@ export function OutbidConsole({
   }, [topBid, presetTargetRankAmount]);
 
   useEffect(() => {
-    if (!urlInput || urlInput.trim().length < 4) {
+    if (!handleInput || handleInput.trim().length < 2) {
       setScrapedData(null);
       return;
     }
@@ -59,7 +59,7 @@ export function OutbidConsole({
         const res = await fetch('/api/scrape', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: urlInput }),
+          body: JSON.stringify({ url: handleInput }),
         });
         if (res.ok) {
           const data = await res.json();
@@ -75,10 +75,10 @@ export function OutbidConsole({
       } finally {
         setIsScraping(false);
       }
-    }, 500);
+    }, 400);
 
     return () => clearTimeout(timer);
-  }, [urlInput]);
+  }, [handleInput]);
 
   const handleAdjustBid = (delta: number) => {
     setBidAmount((prev) => Math.max(2, prev + delta));
@@ -90,24 +90,24 @@ export function OutbidConsole({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!urlInput.trim()) {
-      alert('Please enter your product URL');
+    if (!handleInput.trim()) {
+      alert('Please enter your X handle (e.g. @naval or x.com/elonmusk)');
       return;
     }
     if (!emailInput.trim()) {
-      alert('Please enter your email for receipt');
+      alert('Please enter your email for receipt & notifications');
       return;
     }
 
-    const { domain, cleanUrl } = cleanDomain(urlInput);
+    const { handle, profileUrl } = cleanXHandle(handleInput);
     onInitiateBid({
-      url: cleanUrl,
-      domain,
+      url: profileUrl,
+      domain: handle,
       email: emailInput,
       amount: bidAmount,
-      title: scrapedData?.title || domain,
-      description: scrapedData?.description || `Visit ${domain}`,
-      faviconUrl: scrapedData?.faviconUrl || `https://www.google.com/s2/favicons?domain=${domain}&sz=128`,
+      title: scrapedData?.title || handle,
+      description: scrapedData?.description || `Official X profile of ${handle}`,
+      faviconUrl: scrapedData?.faviconUrl || `https://unavatar.io/x/${handle.replace('@', '')}`,
       existingAmount: scrapedData?.existingAmount || 0,
     });
   };
@@ -120,7 +120,7 @@ export function OutbidConsole({
         <div className="flex items-center justify-between mb-3.5">
           <span className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
             <Zap className="size-3.5 text-amber-400 fill-amber-400" />
-            <span>Claim Your Rank</span>
+            <span>Spotlight on X</span>
           </span>
 
           <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${
@@ -173,21 +173,21 @@ export function OutbidConsole({
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none font-bold text-xs">
               {isScraping ? (
                 <Loader2 className="size-4 animate-spin text-amber-400" />
               ) : (
-                <Globe className="size-4" />
+                <span className="text-zinc-400 font-mono">𝕏</span>
               )}
             </span>
             <input
               id="bento-input"
               type="text"
-              placeholder="Product URL (e.g. yourstartup.com)"
+              placeholder="X @handle or link (e.g. @elonmusk)"
               required
-              value={urlInput}
-              onChange={(e) => setUrlInput(e.target.value)}
-              className="w-full rounded-2xl border border-white/10 bg-zinc-900/90 py-2.5 pl-10 pr-3 text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/80 transition"
+              value={handleInput}
+              onChange={(e) => setHandleInput(e.target.value)}
+              className="w-full rounded-2xl border border-white/10 bg-zinc-900/90 py-2.5 pl-9 pr-3 text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 outline-none focus:border-amber-400/80 focus:ring-1 focus:ring-amber-400/80 transition"
             />
           </div>
 
@@ -202,21 +202,30 @@ export function OutbidConsole({
 
           {scrapedData && (
             <div className="p-2.5 rounded-2xl bg-zinc-900/90 border border-white/10 text-xs flex items-center gap-2.5 animate-in fade-in">
-              <img src={scrapedData.faviconUrl} alt="" className="size-5 rounded shrink-0 object-cover" />
+              <img
+                src={scrapedData.faviconUrl}
+                alt=""
+                className="size-8 rounded-full shrink-0 object-cover bg-zinc-800"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/identicon/svg?seed=${handleInput}`;
+                }}
+              />
               <div className="min-w-0 flex-1 truncate">
-                <p className="font-semibold text-zinc-200 truncate">{scrapedData.title}</p>
+                <p className="font-bold text-zinc-200 truncate">{scrapedData.title}</p>
                 {scrapedData.existingAmount ? (
                   <p className="text-emerald-400 text-[11px] font-medium">
                     ✓ {formatCurrency(scrapedData.existingAmount)} existing power
                   </p>
-                ) : null}
+                ) : (
+                  <p className="text-zinc-500 text-[11px] truncate">Ready to claim spotlight</p>
+                )}
               </div>
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full py-3 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold text-xs sm:text-sm transition-colors shadow-md flex items-center justify-center gap-1.5 active:scale-[0.99]"
+            className="w-full py-3 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-black text-xs sm:text-sm transition-colors shadow-md flex items-center justify-center gap-1.5 active:scale-[0.99]"
           >
             <Zap className="size-4 fill-zinc-950" />
             <span>Outbid for {formatCurrency(bidAmount)}</span>
@@ -228,7 +237,7 @@ export function OutbidConsole({
       <div className="pt-3.5 border-t border-white/[0.07] flex items-center justify-between text-xs">
         <div className="flex items-center gap-1.5 text-zinc-400">
           <Sparkles className="size-3.5 text-purple-400" />
-          <span>3-Hour Takeover VIP:</span>
+          <span>3-Hour VIP Takeover:</span>
           <strong className="text-white font-mono">{formatCurrency(takeoverPrice)}</strong>
         </div>
 

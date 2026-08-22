@@ -4,25 +4,26 @@ import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL('https://gettopx.lol'),
   title: {
-    default: 'TopX — The Real-Time Pay-to-Rank Spotlight',
-    template: '%s · TopX',
+    default: 'GetTopX — The Real-Time Pay-to-Rank Spotlight for 𝕏 Accounts',
+    template: '%s · GetTopX',
   },
   description:
-    'TopX (gettopx.lol) is a sovereign meritocratic leaderboard where products outbid the competition in real time to capture global spotlight attention. No ads, no blackbox algorithms.',
+    'GetTopX (gettopx.lol) is a sovereign meritocratic leaderboard where X (Twitter) accounts outbid the competition in real time to capture global spotlight attention. No ads, no blackbox algorithms.',
   keywords: [
-    'TopX',
+    'GetTopX',
     'gettopx.lol',
     'pay to rank',
-    'leaderboard',
-    'startup spotlight',
+    'x leaderboard',
+    'twitter spotlight',
+    'x creators',
     'indie hackers',
     'viral attention',
     'polar payment',
     'meritocratic advertising',
   ],
-  authors: [{ name: 'TopX Team', url: 'https://gettopx.lol' }],
-  creator: 'TopX',
-  publisher: 'TopX',
+  authors: [{ name: 'GetTopX Team', url: 'https://gettopx.lol' }],
+  creator: 'GetTopX',
+  publisher: 'GetTopX',
   formatDetection: {
     email: false,
     address: false,
@@ -39,19 +40,19 @@ export const metadata: Metadata = {
     shortcut: '/favicon.svg',
   },
   openGraph: {
-    title: 'TopX — The Real-Time Pay-to-Rank Spotlight',
+    title: 'GetTopX — The Real-Time Pay-to-Rank Spotlight for 𝕏 Accounts',
     description:
-      'No ads, no algorithms, no gatekeepers. Outbid your competitors in real time to claim the #1 spotlight on gettopx.lol.',
+      'No ads, no algorithms, no gatekeepers. Outbid competitors in real time to claim the #1 spotlight for your X profile on gettopx.lol.',
     url: 'https://gettopx.lol',
-    siteName: 'TopX',
+    siteName: 'GetTopX',
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TopX — The Real-Time Pay-to-Rank Spotlight',
+    title: 'GetTopX — The Real-Time Pay-to-Rank Spotlight for 𝕏 Accounts',
     description:
-      'No ads, no algorithms, no gatekeepers. Outbid your competitors in real time to claim the #1 spotlight on gettopx.lol.',
+      'No ads, no algorithms, no gatekeepers. Outbid competitors in real time to claim the #1 spotlight for your X profile on gettopx.lol.',
     creator: '@gettopxlol',
   },
   robots: {

@@ -29,7 +29,7 @@ export function Header({ onlineVisitors = 1, totalClicks = 0 }: HeaderProps) {
             <Zap className="size-4.5 fill-zinc-950" />
           </div>
           <span className="font-extrabold text-xl tracking-tight text-white flex items-center">
-            TopX<span className="text-amber-400">.</span>
+            GetTopX<span className="text-amber-400">.</span>
           </span>
         </Link>
 

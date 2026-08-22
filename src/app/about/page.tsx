@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { formatCurrency, formatNumber } from '@/lib/utils';
-import { Zap, Sparkles, Flame, Trophy, TrendingUp, ArrowRight, HelpCircle, Layers } from 'lucide-react';
+import { Zap, Sparkles, Trophy, TrendingUp, ArrowRight, HelpCircle, Layers } from 'lucide-react';
 
 export default function AboutPage() {
   const [stats, setStats] = useState({
@@ -41,15 +41,15 @@ export default function AboutPage() {
         <div className="text-center space-y-4 pt-4">
           <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/25 px-3 py-1 text-xs font-bold text-amber-400">
             <Zap className="size-3.5 fill-amber-400" />
-            <span>The Attention Marketplace</span>
+            <span>The Spotlight on 𝕏</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
-            About TopX
+            About GetTopX
           </h1>
 
           <p className="text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-            TopX (<strong className="text-zinc-200">gettopx.lol</strong>) is an open, sovereign leaderboard where products compete for the #1 spotlight. No opaque algorithms, no ad networks, no gatekeepers.
+            GetTopX (<strong className="text-zinc-200">gettopx.lol</strong>) is a sovereign meritocratic leaderboard where X (Twitter) accounts compete for the #1 spotlight. No opaque algorithms, no ad networks, no gatekeepers.
           </p>
         </div>
 
@@ -75,7 +75,7 @@ export default function AboutPage() {
               <p className="font-mono font-black text-xl sm:text-2xl text-white">
                 {stats.totalItems} <span className="text-xs text-zinc-500 font-normal">/ 10</span>
               </p>
-              <p className="text-[11px] text-zinc-500">active contenders</p>
+              <p className="text-[11px] text-zinc-500">active X accounts</p>
             </div>
 
             {/* Metric 2: Highest Valuation */}
@@ -94,12 +94,12 @@ export default function AboutPage() {
             <div className="glass-panel p-4 sm:p-5 rounded-2xl space-y-1">
               <div className="flex items-center gap-1.5 text-xs text-zinc-400">
                 <TrendingUp className="size-3.5 text-emerald-400" />
-                <span>Clicks Delivered</span>
+                <span>Profile Visits</span>
               </div>
               <p className="font-mono font-black text-xl sm:text-2xl text-emerald-400">
                 {formatNumber(stats.totalClicks)}
               </p>
-              <p className="text-[11px] text-zinc-500">outbound redirects</p>
+              <p className="text-[11px] text-zinc-500">outbound clicks to X</p>
             </div>
 
             {/* Metric 4: Realtime Visitors */}
@@ -122,13 +122,13 @@ export default function AboutPage() {
         {/* How It Works Section */}
         <div className="glass-panel p-6 sm:p-8 rounded-3xl space-y-4">
           <h2 className="text-xl font-bold text-white tracking-tight">
-            How TopX Works
+            How GetTopX Works
           </h2>
           <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-            Every product submitted to TopX is ranked purely on its cumulative bid power. You pay once to place your product on the board, and your valuation remains permanently associated with your domain.
+            Every X (Twitter) profile listed on GetTopX is ranked purely on its cumulative bid power. Enter your X handle (<strong className="text-white">@username</strong>), pay to place your profile on the board, and your ranking valuation stacks permanently on your handle.
           </p>
           <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
-            When another product outbids you, you simply drop to rank #2 with your full valuation intact. You can reclaim #1 anytime by bidding only the difference.
+            When another creator or account outbids you, you simply drop to rank #2 with your full valuation intact. You can reclaim #1 anytime by bidding only the difference.
           </p>
         </div>
 
@@ -138,9 +138,9 @@ export default function AboutPage() {
             <div className="size-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold">
               ⚡
             </div>
-            <h3 className="text-base font-bold text-white">Permanent Stacking</h3>
+            <h3 className="text-base font-bold text-white">Permanent Handle Power</h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Every dollar you bid stacks permanently on top of your existing domain power. You never start from zero when defending your rank.
+              Every dollar you bid stacks permanently on top of your @handle power. You never start from zero when defending your rank on X.
             </p>
           </div>
 
@@ -148,9 +148,9 @@ export default function AboutPage() {
             <div className="size-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold">
               🎯
             </div>
-            <h3 className="text-base font-bold text-white">Direct Traffic Routing</h3>
+            <h3 className="text-base font-bold text-white">Direct X Profile Traffic</h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Every click routes directly to your product via 302 redirects with instant SSE analytics. Visitors can click anywhere on your card.
+              Every click routes directly to your X profile (<strong className="text-zinc-200">x.com/username</strong>) with verified real-time analytics.
             </p>
           </div>
 
@@ -160,7 +160,7 @@ export default function AboutPage() {
             </div>
             <h3 className="text-base font-bold text-white">3-Hour VIP Takeover</h3>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Activate the VIP takeover option to exclusively dominate the #1 spotlight for 3 hours straight with dedicated branding.
+              Activate the VIP takeover option to exclusively dominate the #1 spotlight on X for 3 hours straight with dedicated branding.
             </p>
           </div>
         </div>
@@ -174,23 +174,23 @@ export default function AboutPage() {
 
           <div className="space-y-3 text-xs sm:text-sm">
             <div className="glass-panel p-5 rounded-2xl space-y-1.5">
-              <h4 className="font-bold text-white">Can someone outbid my product?</h4>
+              <h4 className="font-bold text-white">Can someone outbid my X handle?</h4>
               <p className="text-zinc-400">
-                Yes! If someone outbids you, your product simply moves down to rank #2, keeping all your accumulated valuation intact. You can outbid them back anytime with a smaller incremental bid.
+                Yes! If another account outbids you, your profile moves down to rank #2, keeping all your accumulated valuation intact. You can outbid them back anytime with an incremental bid.
               </p>
             </div>
 
             <div className="glass-panel p-5 rounded-2xl space-y-1.5">
               <h4 className="font-bold text-white">Do past bids expire?</h4>
               <p className="text-zinc-400">
-                Never. Bids are permanently cumulative. If you bid $50 today and $50 next week, your domain has $100 total ranking power forever.
+                Never. Bids are permanently cumulative. If you bid $50 today and $50 next week, your X handle has $100 total ranking power forever.
               </p>
             </div>
 
             <div className="glass-panel p-5 rounded-2xl space-y-1.5">
-              <h4 className="font-bold text-white">Are all types of websites allowed?</h4>
+              <h4 className="font-bold text-white">Which X accounts can be listed?</h4>
               <p className="text-zinc-400">
-                Any legitimate software, startup, open-source tool, newsletter, or creator project is welcome. Malware, scams, phishing, and unlawful materials are strictly prohibited.
+                Any public, active X (Twitter) account — creators, founders, traders, developers, projects, and personal brands. Suspended, bot, or illegal accounts are strictly prohibited.
               </p>
             </div>
           </div>
@@ -202,7 +202,7 @@ export default function AboutPage() {
             href="/"
             className="inline-flex items-center gap-2 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold px-6 py-3.5 text-sm transition shadow-lg active:scale-95"
           >
-            <span>View Live TopX Leaderboard</span>
+            <span>View Live GetTopX Leaderboard</span>
             <ArrowRight className="size-4" />
           </Link>
         </div>

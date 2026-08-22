@@ -32,9 +32,46 @@ export function timeAgo(dateString: string | Date): string {
   return date.toLocaleDateString();
 }
 
+export function cleanXHandle(inputStr: string): {
+  handle: string;
+  rawHandle: string;
+  profileUrl: string;
+  domain: string;
+  cleanUrl: string;
+} {
+  let raw = inputStr.trim().replace(/^@+/, '');
+  // Remove protocol and domain if present
+  raw = raw.replace(/^https?:\/\//i, '');
+  raw = raw.replace(/^(?:www\.)?(?:twitter\.com|x\.com)\/?/i, '');
+  
+  // Strip query strings and trailing slashes
+  raw = raw.split('?')[0].split('/')[0].trim();
+  const rawHandle = raw.toLowerCase().replace(/[^a-z0-9_]/gi, '');
+  const handle = `@${rawHandle}`;
+  const profileUrl = `https://x.com/${rawHandle}`;
+
+  return {
+    handle,
+    rawHandle,
+    profileUrl,
+    domain: handle,
+    cleanUrl: profileUrl,
+  };
+}
+
 export function cleanDomain(urlStr: string): { domain: string; cleanUrl: string } {
+  // If input looks like an X handle or X URL, delegate to cleanXHandle
+  const trimmed = urlStr.trim();
+  if (trimmed.startsWith('@') || trimmed.includes('x.com') || trimmed.includes('twitter.com') || !trimmed.includes('.')) {
+    const xResult = cleanXHandle(urlStr);
+    return {
+      domain: xResult.handle,
+      cleanUrl: xResult.profileUrl,
+    };
+  }
+
   try {
-    let raw = urlStr.trim();
+    let raw = trimmed;
     if (!raw.startsWith('http://') && !raw.startsWith('https://')) {
       raw = 'https://' + raw;
     }
@@ -48,10 +85,10 @@ export function cleanDomain(urlStr: string): { domain: string; cleanUrl: string 
       cleanUrl,
     };
   } catch {
-    const sanitized = urlStr.replace(/^(?:https?:\/\/)?(?:www\.)?/i, '').split('/')[0].toLowerCase();
+    const sanitized = trimmed.replace(/^(?:https?:\/\/)?(?:www\.)?/i, '').split('/')[0].toLowerCase();
     return {
-      domain: sanitized || urlStr,
-      cleanUrl: urlStr.startsWith('http') ? urlStr : `https://${urlStr}`,
+      domain: sanitized || trimmed,
+      cleanUrl: trimmed.startsWith('http') ? trimmed : `https://${trimmed}`,
     };
   }
 }

@@ -52,11 +52,11 @@ export default function RulesPage() {
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-            TopX Rules & Guidelines
+            GetTopX Rules & Guidelines
           </h1>
 
           <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto leading-relaxed">
-            TopX (gettopx.lol) is a public meritocratic leaderboard. There are no ads, no hidden algorithms, and no revenue share. You pay to stand above everyone else. Rank is the bid — nothing else.
+            GetTopX (gettopx.lol) is a public meritocratic leaderboard for X (Twitter) accounts. There are no ads, no hidden algorithms, and no revenue share. You pay to stand above everyone else on X. Rank is the bid — nothing else.
           </p>
         </div>
 
@@ -64,7 +64,7 @@ export default function RulesPage() {
         <section className="glass-panel p-6 sm:p-8 rounded-3xl space-y-4">
           <h2 className="text-lg sm:text-xl font-black text-white tracking-tight flex items-center gap-2">
             <span className="text-amber-400 font-mono font-bold">01.</span>
-            <span>How Ranking Works</span>
+            <span>How Ranking on X Works</span>
           </h2>
 
           <ul className="space-y-2.5 text-xs sm:text-sm text-zinc-300">
@@ -78,11 +78,11 @@ export default function RulesPage() {
             </li>
             <li className="flex items-start gap-2.5">
               <Check className="size-4 text-amber-400 shrink-0 mt-0.5" />
-              <span>Enter the same website domain again to raise your listing back to #1. The new bid only needs to exceed the top bid by at least $1; <strong>you only pay the difference</strong>. Competitors cannot take your rank by paying that difference.</span>
+              <span>Enter the same <strong>@handle</strong> again to raise your profile back to #1. The new bid only needs to exceed the top bid by at least $1; <strong>you only pay the difference</strong>.</span>
             </li>
             <li className="flex items-start gap-2.5">
               <Check className="size-4 text-amber-400 shrink-0 mt-0.5" />
-              <span>App Store, Play Store, GitHub, and similar platform links are keyed by their path, so different apps don&apos;t share a bid pool. Tracking query strings are ignored.</span>
+              <span>All X account listings are keyed strictly by their canonical username (e.g. <code>@elonmusk</code> = <code>x.com/elonmusk</code>).</span>
             </li>
           </ul>
         </section>
@@ -91,29 +91,21 @@ export default function RulesPage() {
         <section className="glass-panel p-6 sm:p-8 rounded-3xl space-y-4">
           <h2 className="text-lg sm:text-xl font-black text-white tracking-tight flex items-center gap-2">
             <span className="text-emerald-400 font-mono font-bold">02.</span>
-            <span>What You Can List</span>
+            <span>What X Accounts You Can List</span>
           </h2>
 
           <ul className="space-y-2.5 text-xs sm:text-sm text-zinc-300">
             <li className="flex items-start gap-2.5">
               <Check className="size-4 text-emerald-400 shrink-0 mt-0.5" />
-              <span>A live product website, SaaS app, developer tool, startup, or public X profile.</span>
+              <span>Any public, active X (Twitter) profile — creators, founders, builders, traders, personal brands, and project accounts.</span>
             </li>
             <li className="flex items-start gap-2.5">
               <XCircle className="size-4 text-red-400 shrink-0 mt-0.5" />
-              <span><strong>Chat and invite links are not allowed</strong> — Telegram, WhatsApp, Discord, Messenger, Signal, and similar. The board is for products, not group chats.</span>
+              <span><strong>Suspended or banned accounts</strong> on X will be automatically rejected or removed.</span>
             </li>
             <li className="flex items-start gap-2.5">
               <XCircle className="size-4 text-red-400 shrink-0 mt-0.5" />
-              <span><strong>Sexual & Adult content is not allowed</strong>. If it contains porn, NSFW, malware, or illegal material, it will be removed immediately without refund.</span>
-            </li>
-            <li className="flex items-start gap-2.5">
-              <XCircle className="size-4 text-red-400 shrink-0 mt-0.5" />
-              <span>Query parameters are stripped from listing links. Affiliate, referral, and tracking URLs will not work.</span>
-            </li>
-            <li className="flex items-start gap-2.5">
-              <XCircle className="size-4 text-red-400 shrink-0 mt-0.5" />
-              <span>Link shorteners (bit.ly, tinyurl) are not allowed and are automatically resolved to their canonical destination.</span>
+              <span><strong>Scam & Phishing profiles</strong> posing as impersonators or malware distribution bots are permanently banned without refund.</span>
             </li>
           </ul>
         </section>
@@ -128,15 +120,15 @@ export default function RulesPage() {
           <ul className="space-y-2.5 text-xs sm:text-sm text-zinc-300">
             <li className="flex items-start gap-2.5">
               <Check className="size-4 text-purple-400 shrink-0 mt-0.5" />
-              <span>Your listing is immediately public worldwide across all connected clients via Server-Sent Events.</span>
+              <span>Your X profile is immediately public worldwide across all connected clients via Server-Sent Events.</span>
             </li>
             <li className="flex items-start gap-2.5">
               <Check className="size-4 text-purple-400 shrink-0 mt-0.5" />
-              <span>Clicks route directly to the clean destination URL with anti-bot verification and live SSE analytics.</span>
+              <span>Clicks route directly to your X profile URL (<code>https://x.com/username</code>) with real-time profile visit tracking.</span>
             </li>
             <li className="flex items-start gap-2.5">
               <Check className="size-4 text-purple-400 shrink-0 mt-0.5" />
-              <span>Completed payments are final and claim your ranking spot permanently on the public ledger.</span>
+              <span>Completed payments are processed securely by Polar.sh and lock your valuation permanently on your handle.</span>
             </li>
           </ul>
         </section>
@@ -147,7 +139,7 @@ export default function RulesPage() {
             href="/"
             className="inline-flex items-center gap-2 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-bold px-6 py-3.5 text-sm transition shadow-lg active:scale-95"
           >
-            <span>Go to Live Leaderboard</span>
+            <span>Go to Live X Leaderboard</span>
             <ArrowRight className="size-4" />
           </Link>
         </div>

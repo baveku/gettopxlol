@@ -91,13 +91,13 @@ export default function HomePage() {
 
   const handleTakeoverClick = () => {
     setPendingBidData({
-      url: 'https://',
-      domain: 'yourproduct.com',
+      url: 'https://x.com/yourhandle',
+      domain: '@yourhandle',
       email: '',
       amount: takeoverPrice,
       title: '3-Hour VIP Takeover',
-      description: 'Own the top spotlight exclusively for 3 hours on gettopx.lol!',
-      faviconUrl: '',
+      description: 'Own the #1 spotlight exclusively for 3 hours on gettopx.lol!',
+      faviconUrl: 'https://unavatar.io/x/x',
       isTakeover: true,
       existingAmount: 0,
     });
@@ -111,17 +111,17 @@ export default function HomePage() {
         totalClicks={totalClicks}
       />
 
-      {/* Main Split Grid: Left = Top 10 Leaderboard, Right = Outbid & Live Activity */}
+      {/* Main Split Grid: Left = Top 10 Leaderboard on X, Right = Outbid & Live Activity */}
       <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* LEFT COLUMN (7 Cols / Main Stage): TOP 10 LEADERBOARD */}
+        {/* LEFT COLUMN (7 Cols / Main Stage): TOP 10 LEADERBOARD ON X */}
         <div className="lg:col-span-7 space-y-4">
           <div className="space-y-1 mb-3">
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              TopX <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-amber-500 bg-clip-text text-transparent">Live Spotlight</span>
+              GetTopX <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-amber-500 bg-clip-text text-transparent">Live Spotlight on 𝕏</span>
             </h1>
             <p className="text-xs sm:text-sm text-zinc-400 font-normal">
-              No gatekeepers. Outbid the competition in real time to claim the #1 spotlight on gettopx.lol.
+              No gatekeepers. Outbid the competition in real time to claim the #1 spotlight for your X profile on gettopx.lol.
             </p>
           </div>
 
@@ -172,7 +172,7 @@ export default function HomePage() {
         </div>
 
         <p className="text-zinc-600 text-[11px]">
-          gettopx.lol (TopX) — The viral real-time pay-to-rank platform. Powered by Next.js 16 (Turbopack) & Prisma ORM.
+          GetTopX (gettopx.lol) — The sovereign pay-to-rank spotlight for X (Twitter) creators & founders. Powered by Polar.sh & Supabase.
         </p>
       </footer>
     </div>

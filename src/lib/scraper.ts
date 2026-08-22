@@ -1,5 +1,5 @@
 import * as cheerio from 'cheerio';
-import { cleanDomain } from './utils';
+import { cleanXHandle, cleanDomain } from './utils';
 
 export interface ScrapedMetadata {
   url: string;
@@ -8,9 +8,32 @@ export interface ScrapedMetadata {
   description: string;
   faviconUrl: string;
   ogImageUrl?: string;
+  isXProfile?: boolean;
 }
 
 export async function scrapeUrlMetadata(rawUrl: string): Promise<ScrapedMetadata> {
+  const trimmed = rawUrl.trim();
+  const isX = trimmed.startsWith('@') || trimmed.includes('x.com') || trimmed.includes('twitter.com') || !trimmed.includes('.');
+
+  if (isX) {
+    const { handle, rawHandle, profileUrl } = cleanXHandle(rawUrl);
+    const unavatarUrl = `https://unavatar.io/x/${rawHandle}`;
+
+    // Format display title cleanly
+    const formattedTitle = `${handle}`;
+    const defaultDescription = `Official X profile of ${handle}. Follow and connect on X (Twitter).`;
+
+    return {
+      url: profileUrl,
+      domain: handle,
+      title: formattedTitle,
+      description: defaultDescription,
+      faviconUrl: unavatarUrl,
+      ogImageUrl: unavatarUrl,
+      isXProfile: true,
+    };
+  }
+
   const { domain, cleanUrl } = cleanDomain(rawUrl);
   const defaultFavicon = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
 
@@ -21,7 +44,7 @@ export async function scrapeUrlMetadata(rawUrl: string): Promise<ScrapedMetadata
     const response = await fetch(cleanUrl, {
       signal: controller.signal,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 (OutrankBot/1.0)',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 (GetTopXBot/1.0)',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       },
     });
@@ -41,7 +64,6 @@ export async function scrapeUrlMetadata(rawUrl: string): Promise<ScrapedMetadata
     const html = await response.text();
     const $ = cheerio.load(html);
 
-    // Title resolution
     let title = $('meta[property="og:title"]').attr('content')
       || $('meta[name="twitter:title"]').attr('content')
       || $('title').text()
@@ -49,30 +71,19 @@ export async function scrapeUrlMetadata(rawUrl: string): Promise<ScrapedMetadata
 
     title = title.trim().substring(0, 100);
 
-    // Description resolution
     let description = $('meta[property="og:description"]').attr('content')
       || $('meta[name="twitter:description"]').attr('content')
       || $('meta[name="description"]').attr('content')
-      || `Discover ${domain} - High quality product and services.`;
+      || `Discover ${domain} on GetTopX.`;
 
     description = description.trim().substring(0, 300);
 
-    // OG Image
     let ogImageUrl = $('meta[property="og:image"]').attr('content')
       || $('meta[name="twitter:image"]').attr('content');
 
-    if (ogImageUrl && !ogImageUrl.startsWith('http')) {
-      try {
-        ogImageUrl = new URL(ogImageUrl, cleanUrl).toString();
-      } catch {
-        ogImageUrl = undefined;
-      }
-    }
-
-    // Favicon resolution
-    let faviconUrl = $('link[rel="apple-touch-icon"]').attr('href')
-      || $('link[rel="icon"]').attr('href')
+    let faviconUrl = $('link[rel="icon"]').attr('href')
       || $('link[rel="shortcut icon"]').attr('href')
+      || $('link[rel="apple-touch-icon"]').attr('href')
       || defaultFavicon;
 
     if (faviconUrl && !faviconUrl.startsWith('http')) {
@@ -86,18 +97,17 @@ export async function scrapeUrlMetadata(rawUrl: string): Promise<ScrapedMetadata
     return {
       url: cleanUrl,
       domain,
-      title: title || domain,
-      description: description || `Welcome to ${domain}`,
+      title,
+      description,
       faviconUrl: faviconUrl || defaultFavicon,
       ogImageUrl,
     };
   } catch (error) {
-    console.error('Error scraping metadata for', cleanUrl, error);
     return {
       url: cleanUrl,
       domain,
       title: domain,
-      description: `Visit ${domain}`,
+      description: `Visit ${domain} on GetTopX.`,
       faviconUrl: defaultFavicon,
     };
   }

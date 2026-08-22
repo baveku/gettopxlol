@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'TopX — The Real-Time Pay-to-Rank Spotlight (gettopx.lol)';
+export const alt = 'GetTopX — The Real-Time Pay-to-Rank Spotlight for X Accounts (gettopx.lol)';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -23,7 +23,6 @@ export default function OpenGraphImage() {
           padding: '60px',
         }}
       >
-        {/* Subtle grid pattern border */}
         <div
           style={{
             position: 'absolute',
@@ -73,7 +72,7 @@ export default function OpenGraphImage() {
               letterSpacing: '-0.03em',
             }}
           >
-            TopX<span style={{ color: '#f59e0b' }}>.</span>
+            GetTopX<span style={{ color: '#f59e0b' }}>.</span>
           </span>
         </div>
 
@@ -89,7 +88,7 @@ export default function OpenGraphImage() {
             lineHeight: 1.15,
           }}
         >
-          The Real-Time Pay-to-Rank Spotlight
+          The Real-Time Spotlight for 𝕏 Accounts
         </h1>
 
         {/* Subtitle */}
@@ -103,7 +102,7 @@ export default function OpenGraphImage() {
             lineHeight: 1.4,
           }}
         >
-          No blackbox algorithms · No gatekeepers · Outbid competitors to capture global sovereign attention.
+          Outbid creators, builders, and founders to claim the #1 sovereign spotlight for your X profile.
         </p>
 
         {/* Bottom Pill Indicators */}
@@ -145,7 +144,7 @@ export default function OpenGraphImage() {
               fontWeight: 600,
             }}
           >
-            ● Live SSE Powered
+            ● Live 𝕏 Profiles
           </div>
         </div>
       </div>
