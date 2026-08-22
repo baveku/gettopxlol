@@ -11,7 +11,7 @@ interface HeaderProps {
   totalClicks?: number;
 }
 
-export function Header({ onlineVisitors = 2014, totalClicks = 30359 }: HeaderProps) {
+export function Header({ onlineVisitors = 1, totalClicks = 0 }: HeaderProps) {
   const pathname = usePathname();
 
   const navLinks = [

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Radio, Zap, MousePointerClick, Flame } from 'lucide-react';
+import { Zap, MousePointerClick, Activity } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
 export interface ActivityEvent {
@@ -12,17 +12,24 @@ export interface ActivityEvent {
   timestamp: string;
 }
 
-const INITIAL_EVENTS: ActivityEvent[] = [
-  { id: '1', type: 'click', title: 'trycomp.ai', detail: 'received a live click', timestamp: '2s ago' },
-  { id: '2', type: 'click', title: 'lathire.com', detail: 'received a live click', timestamp: '8s ago' },
-  { id: '3', type: 'bid', title: 'lathire.com', detail: 'raised bid to $10,100', timestamp: '5m ago' },
-  { id: '4', type: 'click', title: 'joinklover.com', detail: 'received a live click', timestamp: '12m ago' },
-  { id: '5', type: 'bid', title: 'trycomp.ai', detail: 'raised bid to $10,000', timestamp: '24m ago' },
-];
-
 export function LiveActivityStream() {
-  const [events, setEvents] = useState<ActivityEvent[]>(INITIAL_EVENTS);
+  const [events, setEvents] = useState<ActivityEvent[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch initial real events from database
+  useEffect(() => {
+    fetch('/api/activity')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.events) {
+          setEvents(data.events);
+        }
+      })
+      .catch((err) => console.error('Error fetching activity stream:', err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Listen to live SSE events
   useEffect(() => {
     const eventSource = new EventSource('/api/events');
 
@@ -31,22 +38,24 @@ export function LiveActivityStream() {
         const data = JSON.parse(event.data);
         if (data.type === 'CLICK_UPDATE') {
           const newEvt: ActivityEvent = {
-            id: Date.now().toString(),
+            id: `live_click_${Date.now()}`,
             type: 'click',
-            title: 'Live Visitor',
-            detail: `clicked on ranking #${data.itemId.slice(-4)}`,
+            title: data.domain || 'Visitor',
+            detail: 'received a live click',
             timestamp: 'just now',
           };
-          setEvents((prev) => [newEvt, ...prev.slice(0, 4)]);
+          setEvents((prev) => [newEvt, ...prev.slice(0, 5)]);
         } else if (data.type === 'BID_COMPLETED') {
           const newEvt: ActivityEvent = {
-            id: Date.now().toString(),
+            id: `live_bid_${Date.now()}`,
             type: 'bid',
             title: data.item?.domain || 'Contender',
-            detail: `outbid with ${formatCurrency(data.amount || 100)}`,
+            detail: data.transaction?.isTakeover
+              ? 'activated 3-Hour VIP Takeover'
+              : `outbid with ${formatCurrency(data.transaction?.amount || data.item?.totalBidAmount || 2)}`,
             timestamp: 'just now',
           };
-          setEvents((prev) => [newEvt, ...prev.slice(0, 4)]);
+          setEvents((prev) => [newEvt, ...prev.slice(0, 5)]);
         }
       } catch (e) {
         console.error('Error handling SSE in ActivityStream:', e);
@@ -77,26 +86,36 @@ export function LiveActivityStream() {
       </div>
 
       <div className="space-y-2">
-        {events.map((evt) => (
-          <div
-            key={evt.id}
-            className="flex items-center justify-between text-xs py-1.5 px-2.5 rounded-xl bg-zinc-900/60 border border-white/5 animate-in fade-in"
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              {evt.type === 'bid' ? (
-                <Zap className="size-3.5 text-amber-400 shrink-0 fill-amber-400" />
-              ) : (
-                <MousePointerClick className="size-3.5 text-emerald-400 shrink-0" />
-              )}
-              <span className="font-bold text-zinc-200 truncate">{evt.title}</span>
-              <span className="text-zinc-400 text-[11px] truncate">{evt.detail}</span>
-            </div>
+        {events.length > 0 ? (
+          events.map((evt) => (
+            <div
+              key={evt.id}
+              className="flex items-center justify-between text-xs py-2 px-3 rounded-xl bg-zinc-900/60 border border-white/5 animate-in fade-in"
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                {evt.type === 'bid' ? (
+                  <Zap className="size-3.5 text-amber-400 shrink-0 fill-amber-400" />
+                ) : (
+                  <MousePointerClick className="size-3.5 text-emerald-400 shrink-0" />
+                )}
+                <span className="font-bold text-zinc-200 truncate">{evt.title}</span>
+                <span className="text-zinc-400 text-[11px] truncate">{evt.detail}</span>
+              </div>
 
-            <span className="text-[10px] text-zinc-400 font-mono shrink-0 pl-2">
-              {evt.timestamp}
-            </span>
+              <span className="text-[10px] text-zinc-400 font-mono shrink-0 pl-2">
+                {evt.timestamp}
+              </span>
+            </div>
+          ))
+        ) : (
+          <div className="py-6 px-4 text-center rounded-2xl bg-zinc-900/30 border border-dashed border-white/5 space-y-1.5">
+            <Activity className="size-5 text-zinc-600 mx-auto" />
+            <p className="text-xs font-semibold text-zinc-400">Waiting for live activity...</p>
+            <p className="text-[11px] text-zinc-400">
+              Real-time bids and clicks will stream here as they happen.
+            </p>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

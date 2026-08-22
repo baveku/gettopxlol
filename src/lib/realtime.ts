@@ -2,26 +2,21 @@ type ClientCallback = (data: string) => void;
 
 class RealtimeBroadcaster {
   private clients: Set<ClientCallback> = new Set();
-  private onlineVisitors: number = 2010;
-
-  constructor() {
-    // Random natural variation in online visitors to simulate real-time traffic pulse
-    if (typeof setInterval !== 'undefined') {
-      setInterval(() => {
-        const delta = Math.floor(Math.random() * 7) - 3;
-        this.onlineVisitors = Math.max(150, this.onlineVisitors + delta);
-        this.broadcast({
-          type: 'VISITOR_UPDATE',
-          onlineVisitors: this.onlineVisitors,
-        });
-      }, 5000);
-    }
-  }
 
   public subscribe(callback: ClientCallback): () => void {
     this.clients.add(callback);
+    // Broadcast live connected count
+    this.broadcast({
+      type: 'VISITOR_UPDATE',
+      onlineVisitors: this.getOnlineVisitors(),
+    });
+
     return () => {
       this.clients.delete(callback);
+      this.broadcast({
+        type: 'VISITOR_UPDATE',
+        onlineVisitors: this.getOnlineVisitors(),
+      });
     };
   }
 
@@ -37,7 +32,7 @@ class RealtimeBroadcaster {
   }
 
   public getOnlineVisitors(): number {
-    return this.onlineVisitors;
+    return Math.max(1, this.clients.size);
   }
 }
 

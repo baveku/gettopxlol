@@ -183,7 +183,7 @@ export function OutbidConsole({
             <input
               id="bento-input"
               type="text"
-              placeholder="Product URL (e.g. trycomp.ai)"
+              placeholder="Product URL (e.g. yourstartup.com)"
               required
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}

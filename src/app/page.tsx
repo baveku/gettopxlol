@@ -12,10 +12,10 @@ import { PaymentModal } from '@/components/PaymentModal';
 export default function HomePage() {
   const [items, setItems] = useState<LeaderboardItemData[]>([]);
   const [activeTakeover, setActiveTakeover] = useState<any>(null);
-  const [onlineVisitors, setOnlineVisitors] = useState<number>(2010);
-  const [totalClicks, setTotalClicks] = useState<number>(33251);
+  const [onlineVisitors, setOnlineVisitors] = useState<number>(1);
+  const [totalClicks, setTotalClicks] = useState<number>(0);
   const [topBid, setTopBid] = useState<number>(0);
-  const [takeoverPrice, setTakeoverPrice] = useState<number>(100);
+  const [takeoverPrice, setTakeoverPrice] = useState<number>(50);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [targetRankAmount, setTargetRankAmount] = useState<number | null>(null);
   const [pendingBidData, setPendingBidData] = useState<any | null>(null);
@@ -30,9 +30,9 @@ export default function HomePage() {
         setActiveTakeover(data.activeTakeover || null);
         if (data.stats) {
           setTotalClicks(data.stats.totalClicks || 0);
-          setOnlineVisitors(data.stats.onlineVisitors || 2014);
+          setOnlineVisitors(data.stats.onlineVisitors || 1);
           setTopBid(data.stats.topBid || 0);
-          setTakeoverPrice(data.stats.takeoverPrice || 100);
+          setTakeoverPrice(data.stats.takeoverPrice || 50);
         }
       }
     } catch (err) {
@@ -53,7 +53,7 @@ export default function HomePage() {
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'VISITOR_UPDATE') {
-          setOnlineVisitors(data.onlineVisitors);
+          setOnlineVisitors(data.onlineVisitors || 1);
         } else if (data.type === 'CLICK_UPDATE') {
           setItems((prev) =>
             prev.map((item) =>
@@ -95,7 +95,7 @@ export default function HomePage() {
       domain: 'yourproduct.com',
       email: '',
       amount: takeoverPrice,
-      title: '3-Hour Takeover VIP',
+      title: '3-Hour VIP Takeover',
       description: 'Own the top spotlight exclusively for 3 hours on gettopx.lol!',
       faviconUrl: '',
       isTakeover: true,

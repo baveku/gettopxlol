@@ -8,11 +8,11 @@ import { Check, XCircle, ArrowRight } from 'lucide-react';
 
 export default function RulesPage() {
   const [stats, setStats] = useState({
-    onlineVisitors: 2014,
+    onlineVisitors: 1,
     totalClicks: 0,
     topBid: 0,
     topDomain: 'Available',
-    totalVisitors: 1067981,
+    totalItems: 0,
   });
 
   useEffect(() => {
@@ -20,13 +20,13 @@ export default function RulesPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.stats) {
-          setStats((prev) => ({
-            ...prev,
-            onlineVisitors: data.stats.onlineVisitors || prev.onlineVisitors,
-            totalClicks: data.stats.totalClicks || prev.totalClicks,
-            topBid: data.stats.topBid || prev.topBid,
-            topDomain: data.items?.[0]?.domain || prev.topDomain,
-          }));
+          setStats({
+            onlineVisitors: data.stats.onlineVisitors || 1,
+            totalClicks: data.stats.totalClicks || 0,
+            topBid: data.stats.topBid || 0,
+            topDomain: data.items?.[0]?.domain || 'Unclaimed',
+            totalItems: data.stats.totalItems || 0,
+          });
         }
       })
       .catch((e) => console.error(e));
@@ -46,7 +46,7 @@ export default function RulesPage() {
             </span>
             <span className="font-semibold text-white">{formatNumber(stats.onlineVisitors)} online</span>
             <span className="text-zinc-600">·</span>
-            <span>{formatNumber(stats.totalVisitors)} total visitors</span>
+            <span>{stats.totalItems} / 10 spots claimed</span>
             <span className="text-zinc-600">·</span>
             <span className="text-amber-400 font-mono font-bold">Top bid: {stats.topBid > 0 ? formatCurrency(stats.topBid) : '$2 min'}</span>
           </div>
