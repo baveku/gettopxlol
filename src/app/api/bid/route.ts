@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { cleanDomain } from '@/lib/utils';
 import { scrapeUrlMetadata } from '@/lib/scraper';
+import { getOrCreatePolarProductId } from '@/lib/polar';
 
 export async function POST(req: NextRequest) {
   try {
@@ -57,6 +58,8 @@ export async function POST(req: NextRequest) {
 
     if (polarToken && !polarToken.includes('xxxx')) {
       try {
+        const productId = await getOrCreatePolarProductId(polarToken);
+
         const polarResponse = await fetch('https://api.polar.sh/v1/checkouts/custom/', {
           method: 'POST',
           headers: {
@@ -64,11 +67,9 @@ export async function POST(req: NextRequest) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
+            products: [productId],
             amount: Math.round(bidAmount * 100), // Polar expects cents
             currency: 'usd',
-            product_name: isTakeover
-              ? `GetTopX — 3-Hour VIP Takeover (${domain})`
-              : `GetTopX — Bid $${bidAmount} for ${domain}`,
             customer_email: email,
             metadata: {
               transactionId: transaction.id,
@@ -88,11 +89,42 @@ export async function POST(req: NextRequest) {
             isLivePolar = true;
           }
         } else {
-          const errText = await polarResponse.text();
-          console.error('Polar API Error:', polarResponse.status, errText);
-          return NextResponse.json({
-            error: `Polar Checkout Error (${polarResponse.status}): ${errText || 'Invalid Polar token or configuration.'}`
-          }, { status: 400 });
+          // Fallback to standard checkouts endpoint
+          const standardResponse = await fetch('https://api.polar.sh/v1/checkouts/', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${polarToken.trim()}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              products: [productId],
+              amount: Math.round(bidAmount * 100),
+              currency: 'usd',
+              customer_email: email,
+              metadata: {
+                transactionId: transaction.id,
+                itemId: item.id,
+                domain: item.domain,
+                url: item.url,
+                isTakeover: String(Boolean(isTakeover)),
+              },
+              success_url: `${appUrl}/?payment=success&txId=${transaction.id}`,
+            }),
+          });
+
+          if (standardResponse.ok) {
+            const stdData = await standardResponse.json();
+            if (stdData.url) {
+              checkoutUrl = stdData.url;
+              isLivePolar = true;
+            }
+          } else {
+            const errText = await standardResponse.text();
+            console.error('Polar API Error:', standardResponse.status, errText);
+            return NextResponse.json({
+              error: `Polar Checkout Error (${standardResponse.status}): ${errText || 'Invalid Polar configuration.'}`
+            }, { status: 400 });
+          }
         }
       } catch (polarErr: any) {
         console.error('Error calling Polar API:', polarErr);
