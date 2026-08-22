@@ -8,28 +8,64 @@ export interface ScrapedMetadata {
   description: string;
   faviconUrl: string;
   ogImageUrl?: string;
+  followers?: string;
   isXProfile?: boolean;
 }
 
 export async function scrapeUrlMetadata(rawUrl: string): Promise<ScrapedMetadata> {
   const trimmed = rawUrl.trim();
-  const isX = trimmed.startsWith('@') || trimmed.includes('x.com') || trimmed.includes('twitter.com') || !trimmed.includes('.');
+  const isX =
+    trimmed.startsWith('@') ||
+    trimmed.includes('x.com') ||
+    trimmed.includes('twitter.com') ||
+    !trimmed.includes('.');
 
   if (isX) {
     const { handle, rawHandle, profileUrl } = cleanXHandle(rawUrl);
-    const unavatarUrl = `https://unavatar.io/x/${rawHandle}`;
+    const defaultAvatar = `https://unavatar.io/x/${rawHandle}`;
 
-    // Format display title cleanly
-    const formattedTitle = `${handle}`;
-    const defaultDescription = `Official X profile of ${handle}. Follow and connect on X (Twitter).`;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+      const fxRes = await fetch(`https://api.fxtwitter.com/${rawHandle}`, {
+        signal: controller.signal,
+        headers: { 'Accept': 'application/json' },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (fxRes.ok) {
+        const fxData = await fxRes.json();
+        const user = fxData.user;
+        if (user) {
+          const rawAvatar = user.avatar_url || defaultAvatar;
+          const highResAvatar = rawAvatar.replace('_normal.', '_400x400.');
+          const followersFormatted = formatFollowers(user.followers || 0);
+
+          return {
+            url: profileUrl,
+            domain: handle,
+            title: user.name || handle,
+            description: user.description || `Official X profile of ${handle}. Follow on X (Twitter).`,
+            faviconUrl: highResAvatar,
+            ogImageUrl: highResAvatar,
+            followers: followersFormatted,
+            isXProfile: true,
+          };
+        }
+      }
+    } catch (err) {
+      console.warn('FxTwitter API fetch failed, falling back to unavatar:', err);
+    }
 
     return {
       url: profileUrl,
       domain: handle,
-      title: formattedTitle,
-      description: defaultDescription,
-      faviconUrl: unavatarUrl,
-      ogImageUrl: unavatarUrl,
+      title: handle,
+      description: `Official X profile of ${handle}. Follow on X (Twitter).`,
+      faviconUrl: defaultAvatar,
+      ogImageUrl: defaultAvatar,
       isXProfile: true,
     };
   }
@@ -39,7 +75,7 @@ export async function scrapeUrlMetadata(rawUrl: string): Promise<ScrapedMetadata
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     const response = await fetch(cleanUrl, {
       signal: controller.signal,
@@ -56,7 +92,7 @@ export async function scrapeUrlMetadata(rawUrl: string): Promise<ScrapedMetadata
         url: cleanUrl,
         domain,
         title: domain,
-        description: `Visit ${domain}`,
+        description: `Visit ${domain} on GetTopX.`,
         faviconUrl: defaultFavicon,
       };
     }
@@ -64,27 +100,31 @@ export async function scrapeUrlMetadata(rawUrl: string): Promise<ScrapedMetadata
     const html = await response.text();
     const $ = cheerio.load(html);
 
-    let title = $('meta[property="og:title"]').attr('content')
-      || $('meta[name="twitter:title"]').attr('content')
-      || $('title').text()
-      || domain;
+    let title =
+      $('meta[property="og:title"]').attr('content') ||
+      $('meta[name="twitter:title"]').attr('content') ||
+      $('title').text() ||
+      domain;
 
     title = title.trim().substring(0, 100);
 
-    let description = $('meta[property="og:description"]').attr('content')
-      || $('meta[name="twitter:description"]').attr('content')
-      || $('meta[name="description"]').attr('content')
-      || `Discover ${domain} on GetTopX.`;
+    let description =
+      $('meta[property="og:description"]').attr('content') ||
+      $('meta[name="twitter:description"]').attr('content') ||
+      $('meta[name="description"]').attr('content') ||
+      `Discover ${domain} on GetTopX.`;
 
     description = description.trim().substring(0, 300);
 
-    let ogImageUrl = $('meta[property="og:image"]').attr('content')
-      || $('meta[name="twitter:image"]').attr('content');
+    let ogImageUrl =
+      $('meta[property="og:image"]').attr('content') ||
+      $('meta[name="twitter:image"]').attr('content');
 
-    let faviconUrl = $('link[rel="icon"]').attr('href')
-      || $('link[rel="shortcut icon"]').attr('href')
-      || $('link[rel="apple-touch-icon"]').attr('href')
-      || defaultFavicon;
+    let faviconUrl =
+      $('link[rel="icon"]').attr('href') ||
+      $('link[rel="shortcut icon"]').attr('href') ||
+      $('link[rel="apple-touch-icon"]').attr('href') ||
+      defaultFavicon;
 
     if (faviconUrl && !faviconUrl.startsWith('http')) {
       try {
@@ -102,7 +142,7 @@ export async function scrapeUrlMetadata(rawUrl: string): Promise<ScrapedMetadata
       faviconUrl: faviconUrl || defaultFavicon,
       ogImageUrl,
     };
-  } catch (error) {
+  } catch {
     return {
       url: cleanUrl,
       domain,
@@ -111,4 +151,15 @@ export async function scrapeUrlMetadata(rawUrl: string): Promise<ScrapedMetadata
       faviconUrl: defaultFavicon,
     };
   }
+}
+
+function formatFollowers(count: number): string {
+  if (!count) return '';
+  if (count >= 1000000) {
+    return `${(count / 1000000).toFixed(1).replace('.0', '')}M`;
+  }
+  if (count >= 1000) {
+    return `${(count / 1000).toFixed(1).replace('.0', '')}K`;
+  }
+  return `${count}`;
 }

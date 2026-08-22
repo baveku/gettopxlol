@@ -11,9 +11,14 @@ export async function POST(req: NextRequest) {
     }
 
     const { domain, cleanUrl } = cleanDomain(url);
-    const existing = await db.item.findUnique({
-      where: { url: cleanUrl },
-    });
+    let existing = null;
+    try {
+      existing = await db.item.findUnique({
+        where: { url: cleanUrl },
+      });
+    } catch (dbErr) {
+      console.warn('DB lookup in scrape skipped:', dbErr);
+    }
 
     const metadata = await scrapeUrlMetadata(cleanUrl);
 
