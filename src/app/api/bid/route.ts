@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     });
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gettopx.lol';
-    const polarToken = process.env.POLAR_ACCESS_TOKEN;
+    const polarToken = process.env.POLAR_ACCESS_TOKEN || process.env.POLAR_API_KEY;
 
     let checkoutUrl = `/api/webhook/payment?txId=${transaction.id}&secret=dev_instant_complete`;
     let isLivePolar = false;

@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Item {
@@ -37,7 +36,7 @@ model BidTransaction {
   itemId          String
   item            Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
   amount          Float
-  paymentProvider String   @default("DEV_SIMULATOR") // POLAR, LEMONSQUEEZY, DEV_SIMULATOR
+  paymentProvider String   @default("POLAR") // POLAR, DEV_SIMULATOR
   providerTxId    String?
   status          String   @default("PENDING") // PENDING, COMPLETED, FAILED
   payerEmail      String
