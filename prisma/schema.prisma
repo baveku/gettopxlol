@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Item {
+  id                String           @id @default(cuid())
+  url               String           @unique
+  domain            String
+  title             String
+  description       String?
+  faviconUrl        String?
+  ogImageUrl        String?
+  email             String
+  totalBidAmount    Float            @default(0)
+  status            String           @default("APPROVED") // PENDING, APPROVED, REJECTED, BANNED
+  clickCount        Int              @default(0)
+  isTakeover        Boolean          @default(false)
+  takeoverExpiresAt DateTime?
+  magicToken        String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  transactions      BidTransaction[]
+  clicks            ClickLog[]
+
+  @@index([status, totalBidAmount])
+  @@index([totalBidAmount])
+}
+
+model BidTransaction {
+  id              String   @id @default(cuid())
+  itemId          String
+  item            Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  amount          Float
+  paymentProvider String   @default("DEV_SIMULATOR") // POLAR, LEMONSQUEEZY, DEV_SIMULATOR
+  providerTxId    String?
+  status          String   @default("PENDING") // PENDING, COMPLETED, FAILED
+  payerEmail      String
+  isTakeover      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  @@index([itemId])
+}
+
+model ClickLog {
+  id        String   @id @default(cuid())
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  ipHash    String?
+  userAgent String?
+  referrer  String?
+  createdAt DateTime @default(now())
+
+  @@index([itemId, createdAt])
+}
+
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
