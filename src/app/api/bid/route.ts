@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
           description: customDescription || scraped.description || `Visit ${domain}`,
           faviconUrl: scraped.faviconUrl,
           ogImageUrl: scraped.ogImageUrl,
+          followers: scraped.followers || null,
           email,
           totalBidAmount: 0,
           status: 'APPROVED',

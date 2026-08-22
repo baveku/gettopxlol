@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { formatCurrency, timeAgo, formatNumber } from '@/lib/utils';
-import { Crown, Zap, ExternalLink, ArrowUpRight } from 'lucide-react';
+import { Crown, Zap, ExternalLink, ArrowUpRight, Users } from 'lucide-react';
 
 export interface LeaderboardItemData {
   id: string;
@@ -11,6 +11,7 @@ export interface LeaderboardItemData {
   title: string;
   description: string | null;
   faviconUrl: string | null;
+  followers?: string | null;
   totalBidAmount: number;
   clickCount: number;
   createdAt: string | Date;
@@ -60,20 +61,20 @@ export function LeaderboardItem({ item, rank, onClaimRank }: LeaderboardItemProp
   let rowContainerClass = 'p-4 sm:p-5 rounded-2xl flex items-start justify-between gap-3.5 sm:gap-4 group transition-all relative cursor-pointer select-none border ';
 
   if (isTop1) {
-    rowContainerClass += 'x-top1 hover:bg-[#1f1a14]';
+    rowContainerClass += 'bg-gradient-to-b from-[#1c180a] to-[#16181c] border-amber-500/50 shadow-[0_0_25px_rgba(245,158,11,0.12)] hover:border-amber-400';
   } else if (isTop2) {
-    rowContainerClass += 'bg-[#16181c] border-[#38444d] hover:bg-[#1a1d22]';
+    rowContainerClass += 'bg-[#16181c] border-slate-400/40 hover:border-slate-300';
   } else if (isTop3) {
-    rowContainerClass += 'bg-[#16181c] border-[#38444d] hover:bg-[#1a1d22]';
+    rowContainerClass += 'bg-[#16181c] border-amber-700/40 hover:border-amber-600';
   } else {
-    rowContainerClass += 'bg-[#16181c] border-[#2f3336] hover:bg-[#1a1d22]';
+    rowContainerClass += 'bg-[#16181c] border-[#2f3336] hover:border-[#71767b] hover:bg-[#1a1d22]';
   }
 
   return (
     <div
       onClick={handleCardClick}
       className={rowContainerClass}
-      role="link"
+      role="button"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -166,7 +167,15 @@ export function LeaderboardItem({ item, rank, onClaimRank }: LeaderboardItemProp
         )}
 
         {/* Line 3: Social & Rank Metrics Bar */}
-        <div className="flex items-center gap-4 text-xs text-[#71767b] pt-1.5">
+        <div className="flex items-center gap-3.5 text-xs text-[#71767b] pt-1.5 flex-wrap">
+          {item.followers ? (
+            <div className="flex items-center gap-1 font-mono text-[#e7e9ea] bg-[#202327] border border-[#2f3336] px-2 py-0.5 rounded-full text-[11px]">
+              <Users className="size-3 text-[#71767b]" />
+              <span className="font-semibold text-white">{item.followers}</span>
+              <span className="text-[#71767b]">followers</span>
+            </div>
+          ) : null}
+
           <div className="flex items-center gap-1.5 font-mono text-[#00ba7c]">
             <span className="size-1.5 rounded-full bg-[#00ba7c] inline-block animate-pulse"></span>
             <span>{formatNumber(item.clickCount)} visits</span>
@@ -179,28 +188,27 @@ export function LeaderboardItem({ item, rank, onClaimRank }: LeaderboardItemProp
             </strong>
           </div>
 
-          <div className="hidden sm:flex items-center gap-1 text-[#71767b] hover:text-[#1d9bf0] transition">
-            <span>x.com/{rawHandle}</span>
-            <ArrowUpRight className="size-3" />
-          </div>
+          <span className="text-[#71767b] hidden sm:inline">
+            x.com/{rawHandle} ↗
+          </span>
         </div>
       </div>
 
-      {/* Right: Outbid Action Button */}
-      <div className="shrink-0 pt-0.5">
+      {/* Right: Outbid Button */}
+      <div className="shrink-0 flex items-center self-center pl-1">
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             onClaimRank(item.totalBidAmount + 1);
           }}
-          className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-extrabold transition-all flex items-center gap-1.5 active:scale-95 shadow-sm ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-black transition-all flex items-center gap-1 active:scale-95 shadow-md ${
             isTop1
-              ? 'x-btn-gold'
-              : 'x-btn-primary'
+              ? 'bg-amber-400 hover:bg-amber-300 text-black shadow-amber-500/20'
+              : 'bg-white hover:bg-[#eff3f4] text-black'
           }`}
         >
-          <Zap className="size-3.5 fill-current" />
+          <Zap className="size-3.5 fill-black text-black" />
           <span>Outbid</span>
         </button>
       </div>

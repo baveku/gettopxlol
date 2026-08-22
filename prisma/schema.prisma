@@ -15,6 +15,7 @@ model Item {
   description       String?
   faviconUrl        String?
   ogImageUrl        String?
+  followers         String?
   email             String
   totalBidAmount    Float            @default(0)
   status            String           @default("APPROVED") // PENDING, APPROVED, REJECTED, BANNED
