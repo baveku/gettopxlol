@@ -5,10 +5,16 @@ import { realtime } from '@/lib/realtime';
 export async function POST(req: NextRequest) {
   try {
     const payload = await req.json();
-    const txId = payload?.data?.custom_data?.transactionId || payload?.transactionId;
+
+    // Extract Polar transaction ID from metadata or root fields
+    const txId =
+      payload?.data?.metadata?.transactionId ||
+      payload?.data?.custom_data?.transactionId ||
+      payload?.data?.custom_field_data?.transactionId ||
+      payload?.transactionId;
 
     if (!txId) {
-      return NextResponse.json({ error: 'Transaction ID missing' }, { status: 400 });
+      return NextResponse.json({ error: 'Transaction ID missing in Polar payload' }, { status: 400 });
     }
 
     const tx = await db.bidTransaction.findUnique({
@@ -16,20 +22,25 @@ export async function POST(req: NextRequest) {
       include: { item: true },
     });
 
-    if (!tx || tx.status === 'COMPLETED') {
-      return NextResponse.json({ message: 'Transaction already completed or not found' });
+    if (!tx) {
+      return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
     }
 
-    // Mark transaction complete
+    if (tx.status === 'COMPLETED') {
+      return NextResponse.json({ message: 'Transaction already completed' });
+    }
+
+    // Mark transaction as completed via Polar
     await db.bidTransaction.update({
       where: { id: txId },
       data: {
         status: 'COMPLETED',
-        providerTxId: payload?.id || `tx_${Date.now()}`,
+        paymentProvider: 'POLAR',
+        providerTxId: payload?.data?.id || payload?.id || `polar_${Date.now()}`,
       },
     });
 
-    // Update cumulative item total
+    // Permanently stack bid amount on top of domain
     const updatedTotal = tx.item.totalBidAmount + tx.amount;
     const takeoverData = tx.isTakeover
       ? {
@@ -42,11 +53,12 @@ export async function POST(req: NextRequest) {
       where: { id: tx.itemId },
       data: {
         totalBidAmount: updatedTotal,
+        status: 'APPROVED',
         ...takeoverData,
       },
     });
 
-    // Broadcast live event to all connected browsers
+    // Broadcast live event to all connected browsers globally
     realtime.broadcast({
       type: 'BID_COMPLETED',
       item: updatedItem,
@@ -55,16 +67,15 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, updatedItem });
   } catch (error) {
-    console.error('Payment webhook error:', error);
+    console.error('Polar payment webhook error:', error);
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
   }
 }
 
-// Support GET for instant dev testing simulator
+// Support GET for testing / simulated checkout completion
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
   const txId = searchParams.get('txId');
-  const secret = searchParams.get('secret');
 
   if (!txId) {
     return NextResponse.json({ error: 'Missing txId' }, { status: 400 });
@@ -84,7 +95,8 @@ export async function GET(req: NextRequest) {
       where: { id: txId },
       data: {
         status: 'COMPLETED',
-        providerTxId: `sim_${Date.now()}`,
+        paymentProvider: 'POLAR',
+        providerTxId: `polar_sim_${Date.now()}`,
       },
     });
 
@@ -100,6 +112,7 @@ export async function GET(req: NextRequest) {
       where: { id: tx.itemId },
       data: {
         totalBidAmount: updatedTotal,
+        status: 'APPROVED',
         ...takeoverData,
       },
     });
@@ -111,8 +124,5 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  // Redirect back to home with success message
-  return NextResponse.redirect(
-    new URL(`/?success=bid_placed&domain=${encodeURIComponent(tx.item.domain)}&amount=${tx.amount}&status=${tx.item.status}`, req.url)
-  );
+  return NextResponse.redirect(new URL(`/?payment=success&txId=${txId}`, req.url));
 }

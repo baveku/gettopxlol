@@ -6,7 +6,7 @@ import { scrapeUrlMetadata } from '@/lib/scraper';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { url, email, amount, isTakeover, provider = 'DEV_SIMULATOR', customTitle, customDescription } = body;
+    const { url, email, amount, isTakeover, customTitle, customDescription } = body;
 
     if (!url || !email || !amount || Number(amount) <= 0) {
       return NextResponse.json({ error: 'Valid URL, email, and bid amount are required' }, { status: 400 });
@@ -32,32 +32,76 @@ export async function POST(req: NextRequest) {
           ogImageUrl: scraped.ogImageUrl,
           email,
           totalBidAmount: 0,
-          status: 'PENDING', // All new bids start pending approval
+          status: 'APPROVED', // Instant approval for live bidding
         },
       });
     }
 
-    // Create pending transaction
+    // Create pending transaction dedicated to Polar
     const transaction = await db.bidTransaction.create({
       data: {
         itemId: item.id,
         amount: bidAmount,
-        paymentProvider: provider,
+        paymentProvider: 'POLAR',
         payerEmail: email,
         isTakeover: Boolean(isTakeover),
         status: 'PENDING',
       },
     });
 
-    // In a live environment with Polar/LemonSqueezy, we create a hosted checkout session here.
-    // For universal local demo & testing, we provide a simulation checkout URL.
-    const checkoutUrl = `/api/webhook/payment?txId=${transaction.id}&secret=dev_instant_complete`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://gettopx.lol';
+    const polarToken = process.env.POLAR_ACCESS_TOKEN;
+
+    let checkoutUrl = `/api/webhook/payment?txId=${transaction.id}&secret=dev_instant_complete`;
+    let isLivePolar = false;
+
+    // If Polar API Token is provided, create real Polar Checkout Session
+    if (polarToken && !polarToken.includes('xxxx')) {
+      try {
+        const polarResponse = await fetch('https://api.polar.sh/v1/checkouts/custom/', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${polarToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: Math.round(bidAmount * 100), // Polar takes amount in cents
+            currency: 'usd',
+            product_name: isTakeover
+              ? `TopX — 3-Hour VIP Takeover (${domain})`
+              : `TopX — Bid $${bidAmount} for ${domain}`,
+            customer_email: email,
+            metadata: {
+              transactionId: transaction.id,
+              itemId: item.id,
+              domain: item.domain,
+              url: item.url,
+              isTakeover: String(Boolean(isTakeover)),
+            },
+            success_url: `${appUrl}/?payment=success&txId=${transaction.id}`,
+          }),
+        });
+
+        if (polarResponse.ok) {
+          const polarData = await polarResponse.json();
+          if (polarData.url) {
+            checkoutUrl = polarData.url;
+            isLivePolar = true;
+          }
+        } else {
+          console.warn('Polar API checkout creation status:', polarResponse.status, await polarResponse.text());
+        }
+      } catch (polarErr) {
+        console.error('Error calling Polar API:', polarErr);
+      }
+    }
 
     return NextResponse.json({
       success: true,
       transactionId: transaction.id,
       itemId: item.id,
       checkoutUrl,
+      isLivePolar,
       amount: bidAmount,
       isTakeover: Boolean(isTakeover),
       item: {
