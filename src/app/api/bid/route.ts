@@ -32,12 +32,12 @@ export async function POST(req: NextRequest) {
           ogImageUrl: scraped.ogImageUrl,
           email,
           totalBidAmount: 0,
-          status: 'APPROVED', // Instant approval for live bidding
+          status: 'APPROVED',
         },
       });
     }
 
-    // Create pending transaction dedicated to Polar
+    // Create pending transaction
     const transaction = await db.bidTransaction.create({
       data: {
         itemId: item.id,
@@ -55,21 +55,20 @@ export async function POST(req: NextRequest) {
     let checkoutUrl = `/api/webhook/payment?txId=${transaction.id}&secret=dev_instant_complete`;
     let isLivePolar = false;
 
-    // If Polar API Token is provided, create real Polar Checkout Session
     if (polarToken && !polarToken.includes('xxxx')) {
       try {
         const polarResponse = await fetch('https://api.polar.sh/v1/checkouts/custom/', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${polarToken}`,
+            'Authorization': `Bearer ${polarToken.trim()}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            amount: Math.round(bidAmount * 100), // Polar takes amount in cents
+            amount: Math.round(bidAmount * 100), // Polar expects cents
             currency: 'usd',
             product_name: isTakeover
-              ? `TopX — 3-Hour VIP Takeover (${domain})`
-              : `TopX — Bid $${bidAmount} for ${domain}`,
+              ? `GetTopX — 3-Hour VIP Takeover (${domain})`
+              : `GetTopX — Bid $${bidAmount} for ${domain}`,
             customer_email: email,
             metadata: {
               transactionId: transaction.id,
@@ -89,11 +88,22 @@ export async function POST(req: NextRequest) {
             isLivePolar = true;
           }
         } else {
-          console.warn('Polar API checkout creation status:', polarResponse.status, await polarResponse.text());
+          const errText = await polarResponse.text();
+          console.error('Polar API Error:', polarResponse.status, errText);
+          return NextResponse.json({
+            error: `Polar Checkout Error (${polarResponse.status}): ${errText || 'Invalid Polar token or configuration.'}`
+          }, { status: 400 });
         }
-      } catch (polarErr) {
+      } catch (polarErr: any) {
         console.error('Error calling Polar API:', polarErr);
+        return NextResponse.json({
+          error: `Failed to connect to Polar API: ${polarErr.message}`
+        }, { status: 500 });
       }
+    } else if (process.env.NODE_ENV === 'production') {
+      return NextResponse.json({
+        error: 'POLAR_ACCESS_TOKEN is missing in Vercel Environment Variables. Please set your Polar token in Vercel settings.'
+      }, { status: 400 });
     }
 
     return NextResponse.json({

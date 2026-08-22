@@ -53,41 +53,43 @@ export function PaymentModal({ isOpen, onClose, bidData, onSuccess }: PaymentMod
         return;
       }
 
-      // If real Polar Checkout session URL is returned, redirect to Polar
-      if (data.isLivePolar && data.checkoutUrl.startsWith('http')) {
+      // If real Polar Checkout session URL is returned, redirect to Polar checkout page immediately
+      if (data.checkoutUrl && data.checkoutUrl.startsWith('http')) {
         window.location.href = data.checkoutUrl;
         return;
       }
 
-      // In local dev/test mode without Polar API keys, complete instantly
-      await fetch(data.checkoutUrl);
-      setCompleted(true);
-      confetti({
-        particleCount: 120,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#f59e0b', '#10b981', '#ffffff'],
-      });
-      setTimeout(() => {
-        onSuccess();
-        onClose();
-        setCompleted(false);
-        setLoading(false);
-      }, 1500);
-    } catch (err) {
+      // In development fallback simulator mode only
+      if (!data.isLivePolar) {
+        await fetch(data.checkoutUrl);
+        setCompleted(true);
+        confetti({
+          particleCount: 120,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#f59e0b', '#10b981', '#ffffff'],
+        });
+        setTimeout(() => {
+          onSuccess();
+          onClose();
+          setCompleted(false);
+          setLoading(false);
+        }, 1500);
+      }
+    } catch (err: any) {
       console.error('Polar payment error:', err);
-      alert('Payment initialization failed. Please check your connection.');
+      alert(`Payment initialization failed: ${err.message || 'Please check your connection.'}`);
       setLoading(false);
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-xl animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md rounded-3xl bg-[#0e1017] p-6 sm:p-7 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] text-white border border-white/15">
+      <div className="relative w-full max-w-md rounded-3xl bg-[#16181c] p-6 sm:p-7 shadow-2xl text-white border border-[#2f3336]">
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 text-zinc-400 hover:text-white p-1.5 rounded-full bg-zinc-900 border border-white/10 hover:bg-zinc-800 transition"
+          className="absolute top-4 right-4 text-[#71767b] hover:text-white p-1.5 rounded-full bg-[#202327] border border-[#2f3336] hover:bg-[#2c3136] transition"
         >
           <X className="size-4" />
         </button>
@@ -98,87 +100,98 @@ export function PaymentModal({ isOpen, onClose, bidData, onSuccess }: PaymentMod
               <CheckCircle2 className="size-8" />
             </div>
             <h3 className="text-xl font-bold text-white">Payment Confirmed!</h3>
-            <p className="text-xs text-zinc-400">
-              Your ranking power has been stacked on <strong className="text-zinc-200">{bidData.domain}</strong> and broadcast worldwide via SSE.
+            <p className="text-sm text-[#71767b]">
+              Your 𝕏 account rank has been upgraded to the live leaderboard.
             </p>
           </div>
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-6">
             {/* Header */}
             <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold mb-2">
-                <Sparkles className="size-3.5" />
-                <span>{bidData.isTakeover ? 'VIP Takeover' : 'Claim Spotlight'}</span>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="size-7 rounded-full bg-amber-400/10 flex items-center justify-center text-amber-400 font-bold">
+                  <Zap className="size-4 fill-amber-400" />
+                </div>
+                <h3 className="text-xl font-black text-white">
+                  {bidData.isTakeover ? 'Activate 3-Hour Takeover' : 'Upgrade 𝕏 Rank'}
+                </h3>
               </div>
-              <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-                {bidData.isTakeover ? 'Confirm 3-Hour VIP Takeover' : `Outbid for ${formatCurrency(bidData.amount)}`}
-              </h3>
-              <p className="text-xs text-zinc-400 mt-1">
-                Receipt & magic edit link will be sent to <span className="text-zinc-200 font-medium">{bidData.email}</span>.
+              <p className="text-xs text-[#71767b]">
+                Processed securely via <strong>Polar.sh</strong> (Apple Pay, Google Pay, Cards).
               </p>
             </div>
 
-            {/* Target Item Summary */}
-            <div className="p-3.5 rounded-2xl bg-zinc-900/90 border border-white/10 space-y-2">
-              <div className="flex items-center gap-2.5">
-                {bidData.faviconUrl ? (
-                  <img src={bidData.faviconUrl} alt="" className="size-6 rounded-md object-cover shrink-0" />
-                ) : (
-                  <div className="size-6 rounded-md bg-zinc-800 flex items-center justify-center text-[10px] font-bold text-zinc-400">
-                    🌐
+            {/* Target 𝕏 Account Summary */}
+            <div className="rounded-2xl bg-[#000000] border border-[#2f3336] p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <img
+                  src={bidData.faviconUrl}
+                  alt=""
+                  className="size-10 rounded-full object-cover ring-2 ring-amber-400/50 bg-[#202327]"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/identicon/svg?seed=${bidData.domain}`;
+                  }}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="font-extrabold text-sm text-[#e7e9ea] truncate">{bidData.title}</p>
+                  <p className="text-xs text-[#71767b] font-mono">{bidData.domain}</p>
+                </div>
+              </div>
+
+              <div className="space-y-1.5 pt-2 border-t border-[#2f3336] text-xs">
+                <div className="flex justify-between text-[#71767b]">
+                  <span>Bid Amount to Charge:</span>
+                  <span className="font-mono font-bold text-white">{formatCurrency(bidData.amount)}</span>
+                </div>
+                {bidData.existingAmount ? (
+                  <div className="flex justify-between text-[#71767b]">
+                    <span>Current Accumulated Power:</span>
+                    <span className="font-mono text-white">{formatCurrency(bidData.existingAmount)}</span>
                   </div>
+                ) : null}
+                <div className="flex justify-between pt-1 border-t border-[#2f3336] font-bold text-white">
+                  <span>Total Ranking Power After Payment:</span>
+                  <span className="font-mono text-amber-400 text-sm">{formatCurrency(totalAfterBid)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Security Guarantee */}
+            <div className="flex items-center gap-2 text-[11px] text-[#71767b]">
+              <ShieldCheck className="size-4 text-emerald-400 shrink-0" />
+              <span>Instant real-time sync across all connected clients upon payment.</span>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-2.5">
+              <button
+                type="button"
+                onClick={handlePay}
+                disabled={loading}
+                className="w-full py-3.5 rounded-full bg-white hover:bg-[#eff3f4] text-black font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin text-black" />
+                    <span>Redirecting to Polar...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Proceed to Polar Checkout ({formatCurrency(bidData.amount)})</span>
+                    <ArrowRight className="size-4" />
+                  </>
                 )}
-                <div className="min-w-0 flex-1 truncate">
-                  <p className="font-bold text-xs sm:text-sm text-white truncate">{bidData.title}</p>
-                  <p className="text-[11px] text-zinc-400 truncate">{bidData.domain}</p>
-                </div>
-              </div>
+              </button>
 
-              {/* Power Breakdown */}
-              <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs">
-                <span className="text-zinc-400">Total Ranking Power:</span>
-                <span className="font-mono font-bold text-amber-400">
-                  {formatCurrency(totalAfterBid)}
-                </span>
-              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={loading}
+                className="w-full py-2.5 rounded-full text-xs text-[#71767b] hover:text-white hover:bg-[#202327] transition font-bold"
+              >
+                Cancel
+              </button>
             </div>
-
-            {/* Polar.sh Payment Gateway Guarantee */}
-            <div className="p-3 rounded-2xl bg-zinc-900/60 border border-white/5 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2 text-zinc-300">
-                <div className="size-6 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 font-black text-[11px]">
-                  P
-                </div>
-                <div>
-                  <p className="font-bold text-white text-[12px]">Polar.sh Checkout</p>
-                  <p className="text-[10px] text-zinc-500">Cards, Apple Pay, Google Pay</p>
-                </div>
-              </div>
-              <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
-                <ShieldCheck className="size-3" /> Secure
-              </span>
-            </div>
-
-            {/* Pay Button */}
-            <button
-              type="button"
-              disabled={loading}
-              onClick={handlePay}
-              className="w-full py-3.5 rounded-2xl bg-white hover:bg-zinc-200 text-zinc-950 font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" />
-                  <span>Connecting to Polar...</span>
-                </>
-              ) : (
-                <>
-                  <Zap className="size-4 fill-zinc-950" />
-                  <span>Pay {formatCurrency(bidData.amount)} via Polar</span>
-                  <ArrowRight className="size-4 ml-0.5" />
-                </>
-              )}
-            </button>
           </div>
         )}
       </div>
