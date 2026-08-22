@@ -51,40 +51,54 @@ export function OutbidConsole({
   }, [topBid, presetTargetRankAmount]);
 
   useEffect(() => {
-    if (!handleInput || handleInput.trim().length < 2) {
+    const trimmed = handleInput.trim().replace(/^@+/, '');
+    if (!trimmed || trimmed.length < 3) {
       setScrapedData(null);
+      setIsScraping(false);
       return;
     }
 
+    const controller = new AbortController();
+    setIsScraping(true);
+
     const timer = setTimeout(async () => {
-      setIsScraping(true);
       try {
         const res = await fetch('/api/scrape', {
           method: 'POST',
+          signal: controller.signal,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ url: handleInput }),
         });
         if (res.ok) {
           const data = await res.json();
-          setScrapedData({
-            title: data.metadata.title,
-            description: data.metadata.description,
-            faviconUrl: data.metadata.faviconUrl,
-            followers: data.metadata.followers,
-            existingAmount: data.existing?.totalBidAmount || 0,
-          });
-          if (!customTagline) {
-            setCustomTagline(data.metadata.description || '');
+          if (!controller.signal.aborted && data.metadata) {
+            setScrapedData({
+              title: data.metadata.title,
+              description: data.metadata.description,
+              faviconUrl: data.metadata.faviconUrl,
+              followers: data.metadata.followers,
+              existingAmount: data.existing?.totalBidAmount || 0,
+            });
+            if (!customTagline) {
+              setCustomTagline(data.metadata.description || '');
+            }
           }
         }
-      } catch (err) {
-        console.error('Error fetching X preview:', err);
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.error('Error fetching X preview:', err);
+        }
       } finally {
-        setIsScraping(false);
+        if (!controller.signal.aborted) {
+          setIsScraping(false);
+        }
       }
-    }, 350);
+    }, 600);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [handleInput]);
 
   const handleAdjustBid = (delta: number) => {
