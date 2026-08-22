@@ -105,23 +105,23 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-start px-4 pb-20 max-w-6xl mx-auto w-full relative">
-      {/* Header */}
+      {/* 𝕏 Header */}
       <Header
         onlineVisitors={onlineVisitors}
         totalClicks={totalClicks}
       />
 
-      {/* Main Split Grid: Left = Top 10 Leaderboard on X, Right = Outbid & Live Activity */}
+      {/* Main Grid: Left = Top 10 X Timeline, Right = Outbid & Live Feed */}
       <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* LEFT COLUMN (7 Cols / Main Stage): TOP 10 LEADERBOARD ON X */}
+        {/* LEFT COLUMN (7 Cols): TOP 10 LEADERBOARD ON X */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="space-y-1 mb-3">
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              GetTopX <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-amber-500 bg-clip-text text-transparent">Live Spotlight on 𝕏</span>
+          <div className="space-y-1 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-black text-[#e7e9ea] tracking-tight">
+              Top 10 Spotlight on <span className="text-white font-mono">𝕏</span>
             </h1>
-            <p className="text-xs sm:text-sm text-zinc-400 font-normal">
-              No gatekeepers. Outbid the competition in real time to claim the #1 spotlight for your X profile on gettopx.lol.
+            <p className="text-xs sm:text-sm text-[#71767b] font-normal">
+              No gatekeepers. Outbid the competition in real time to claim the #1 spotlight for your 𝕏 profile on gettopx.lol.
             </p>
           </div>
 
@@ -133,9 +133,9 @@ export default function HomePage() {
           />
         </div>
 
-        {/* RIGHT COLUMN (5 Cols / Sticky Companion): OUTBID + LIVE ACTIVITY STREAM */}
-        <div className="lg:col-span-5 space-y-4 lg:sticky lg:top-6">
-          {/* Quick Outbid Console */}
+        {/* RIGHT COLUMN (5 Cols): OUTBID + REALTIME FEED */}
+        <div className="lg:col-span-5 space-y-4 lg:sticky lg:top-4">
+          {/* Outbid Console */}
           <OutbidConsole
             topBid={topBid}
             takeoverPrice={takeoverPrice}
@@ -161,9 +161,9 @@ export default function HomePage() {
         }}
       />
 
-      {/* Footer */}
-      <footer className="mt-20 text-center text-xs text-zinc-500 space-y-3 border-t border-white/[0.07] pt-8 w-full">
-        <div className="flex items-center justify-center gap-5 font-semibold text-zinc-400">
+      {/* 𝕏 Footer */}
+      <footer className="mt-20 text-center text-xs text-[#71767b] space-y-3 border-t border-[#2f3336] pt-8 w-full">
+        <div className="flex items-center justify-center gap-5 font-bold text-[#71767b]">
           <Link href="/" className="hover:text-white transition">Leaderboard</Link>
           <span>·</span>
           <Link href="/about" className="hover:text-white transition">About</Link>
@@ -171,8 +171,8 @@ export default function HomePage() {
           <Link href="/rules" className="hover:text-white transition">Rules & Guidelines</Link>
         </div>
 
-        <p className="text-zinc-600 text-[11px]">
-          GetTopX (gettopx.lol) — The sovereign pay-to-rank spotlight for X (Twitter) creators & founders. Powered by Polar.sh & Supabase.
+        <p className="text-[#71767b]/70 text-[11px]">
+          GetTopX (gettopx.lol) — The sovereign pay-to-rank spotlight for 𝕏 creators & founders. Powered by Polar.sh & Supabase.
         </p>
       </footer>
     </div>

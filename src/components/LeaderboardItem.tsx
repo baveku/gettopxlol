@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { formatCurrency, timeAgo, formatNumber } from '@/lib/utils';
-import { ExternalLink, CheckCircle2, Crown, Zap } from 'lucide-react';
+import { Crown, Zap, ExternalLink, ArrowUpRight } from 'lucide-react';
 
 export interface LeaderboardItemData {
   id: string;
@@ -27,33 +27,52 @@ export function LeaderboardItem({ item, rank, onClaimRank }: LeaderboardItemProp
   const isTop1 = rank === 1;
   const isTop2 = rank === 2;
   const isTop3 = rank === 3;
-  const avatarSrc = item.faviconUrl || `https://unavatar.io/x/${item.domain.replace(/^@/, '')}`;
+  const handle = item.domain.startsWith('@') ? item.domain : `@${item.domain}`;
+  const rawHandle = item.domain.replace(/^@/, '');
+  const avatarSrc = item.faviconUrl || `https://unavatar.io/x/${rawHandle}`;
 
   const handleCardClick = () => {
     window.open(`/api/r/${item.id}`, '_blank', 'noopener,noreferrer');
   };
 
-  let cardClass = 'glass-panel p-3.5 sm:p-4 rounded-2xl flex items-center justify-between gap-3 group transition-all relative cursor-pointer select-none hover:border-white/20 active:scale-[0.995]';
-  let rankBadgeClass = 'size-8 sm:size-9 rounded-xl flex items-center justify-center font-mono font-bold text-xs sm:text-sm shrink-0 ';
+  // Render Bio with highlighted @mentions and links
+  const renderBio = (text: string) => {
+    const parts = text.split(/(\s+)/);
+    return parts.map((part, i) => {
+      if (part.startsWith('@') || part.startsWith('#')) {
+        return (
+          <span key={i} className="text-[#1d9bf0] hover:underline font-medium">
+            {part}
+          </span>
+        );
+      }
+      if (part.startsWith('http://') || part.startsWith('https://')) {
+        return (
+          <span key={i} className="text-[#1d9bf0] hover:underline font-medium">
+            {part.replace(/^https?:\/\//, '')}
+          </span>
+        );
+      }
+      return part;
+    });
+  };
+
+  let rowContainerClass = 'p-4 sm:p-5 rounded-2xl flex items-start justify-between gap-3.5 sm:gap-4 group transition-all relative cursor-pointer select-none border ';
 
   if (isTop1) {
-    cardClass += ' shimmer-gold bg-gradient-to-r from-amber-500/20 via-amber-500/10 to-amber-950/20 hover:border-amber-400/60';
-    rankBadgeClass += 'bg-gradient-to-tr from-amber-400 via-amber-300 to-yellow-200 text-zinc-950 font-black shadow-md shadow-amber-500/40 animate-pulse';
+    rowContainerClass += 'x-top1 hover:bg-[#1f1a14]';
   } else if (isTop2) {
-    cardClass += ' shimmer-silver bg-gradient-to-r from-slate-400/15 via-slate-400/5 to-slate-900/20 hover:border-slate-200/50';
-    rankBadgeClass += 'bg-gradient-to-tr from-slate-100 to-slate-300 text-zinc-950 font-black shadow-md shadow-slate-400/30';
+    rowContainerClass += 'bg-[#16181c] border-[#38444d] hover:bg-[#1a1d22]';
   } else if (isTop3) {
-    cardClass += ' shimmer-bronze bg-gradient-to-r from-amber-700/15 via-amber-700/5 to-amber-950/20 hover:border-amber-500/50';
-    rankBadgeClass += 'bg-gradient-to-tr from-amber-600 to-amber-800 text-white font-black shadow-md shadow-amber-700/30';
+    rowContainerClass += 'bg-[#16181c] border-[#38444d] hover:bg-[#1a1d22]';
   } else {
-    cardClass += ' bg-zinc-900/60 hover:bg-zinc-900/90 border-white/[0.07]';
-    rankBadgeClass += 'bg-zinc-800/80 text-zinc-400 border border-white/5';
+    rowContainerClass += 'bg-[#16181c] border-[#2f3336] hover:bg-[#1a1d22]';
   }
 
   return (
     <div
       onClick={handleCardClick}
-      className={cardClass}
+      className={rowContainerClass}
       role="link"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -63,125 +82,125 @@ export function LeaderboardItem({ item, rank, onClaimRank }: LeaderboardItemProp
         }
       }}
     >
-      {/* Left section: Rank + X Avatar + Details */}
-      <div className="flex items-center gap-3 min-w-0 flex-1 relative z-10">
-        {/* Rank Badge */}
-        <div className={rankBadgeClass}>
-          {isTop1 ? <Crown className="size-4.5 fill-zinc-950" /> : `#${rank}`}
+      {/* Left: Rank Badge + X Avatar */}
+      <div className="flex items-start gap-3 shrink-0">
+        {/* Rank Number / Crown */}
+        <div className="flex flex-col items-center gap-1.5 pt-0.5">
+          {isTop1 ? (
+            <div className="size-8 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center shadow-lg shadow-amber-500/30">
+              <Crown className="size-4.5 fill-black text-black" />
+            </div>
+          ) : (
+            <div className={`size-7 rounded-full flex items-center justify-center font-mono font-bold text-xs ${
+              isTop2
+                ? 'bg-slate-200 text-black'
+                : isTop3
+                ? 'bg-amber-700 text-white'
+                : 'bg-[#202327] text-[#71767b] border border-[#2f3336]'
+            }`}>
+              #{rank}
+            </div>
+          )}
         </div>
 
         {/* X Profile Avatar */}
-        <div className={`size-10 sm:size-11 rounded-full p-0.5 flex items-center justify-center shrink-0 shadow-sm overflow-hidden ${
+        <div className={`size-11 sm:size-12 rounded-full overflow-hidden shrink-0 bg-[#202327] ${
           isTop1
             ? 'ring-2 ring-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.4)]'
             : isTop2
-            ? 'ring-2 ring-slate-300 shadow-[0_0_12px_rgba(203,213,225,0.3)]'
+            ? 'ring-2 ring-slate-300'
             : isTop3
-            ? 'ring-2 ring-amber-600 shadow-[0_0_10px_rgba(217,119,6,0.3)]'
-            : 'ring-1 ring-white/10'
+            ? 'ring-2 ring-amber-600'
+            : 'ring-1 ring-[#2f3336]'
         }`}>
           <img
             src={avatarSrc}
-            alt={item.domain}
-            className="size-full rounded-full object-cover bg-zinc-900"
+            alt={handle}
+            className="size-full rounded-full object-cover group-hover:scale-105 transition-transform duration-200"
             onError={(e) => {
-              (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/identicon/svg?seed=${item.domain}`;
+              (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/identicon/svg?seed=${rawHandle}`;
             }}
           />
         </div>
+      </div>
 
-        {/* X Profile Details */}
-        <div className="min-w-0 flex-1 pr-2">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span
-              className={`font-extrabold text-sm sm:text-base transition flex items-center gap-1 truncate group-hover:underline ${
-                isTop1
-                  ? 'text-amber-300'
-                  : isTop2
-                  ? 'text-slate-100'
-                  : isTop3
-                  ? 'text-amber-200'
-                  : 'text-white'
-              }`}
-            >
-              {item.title || item.domain}
-            </span>
+      {/* Middle: X Profile Details & Bio */}
+      <div className="min-w-0 flex-1 space-y-1">
+        {/* Line 1: Name + Verified + Handle + Rank Tag */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="font-extrabold text-sm sm:text-base text-[#e7e9ea] group-hover:underline truncate">
+            {item.title || rawHandle}
+          </span>
 
-            {/* Verified Checkmark */}
-            <CheckCircle2 className="size-3.5 fill-sky-500 text-zinc-950 shrink-0" />
-
-            {/* X Handle */}
-            <span className="text-xs text-zinc-400 font-mono font-normal">
-              {item.domain.startsWith('@') ? item.domain : `@${item.domain}`}
-            </span>
-
-            {/* Rank Tag for Top 3 */}
-            {isTop1 ? (
-              <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40">
-                #1 Apex X
-              </span>
-            ) : isTop2 ? (
-              <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-full bg-slate-400/20 text-slate-300 border border-slate-400/30">
-                #2 Spotlight
-              </span>
-            ) : isTop3 ? (
-              <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-full bg-amber-700/20 text-amber-300 border border-amber-700/30">
-                #3 Spotlight
-              </span>
-            ) : null}
-          </div>
-
-          {/* Bio / Description */}
-          {item.description && (
-            <p className="text-xs text-zinc-400 truncate mt-0.5">
-              {item.description}
-            </p>
+          {/* Official X Verified Badge SVG */}
+          {isTop1 ? (
+            <svg viewBox="0 0 24 24" aria-label="Verified organization" className="size-4 fill-amber-400 shrink-0">
+              <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.79-4-4-4-.495 0-.965.084-1.4.238C14.55 2.475 13.18 1.6 11.6 1.6S8.65 2.475 8.01 3.738c-.435-.154-.905-.238-1.4-.238-2.21 0-4 1.79-4 4 0 .495.084.965.238 1.4C1.575 9.55.7 10.92.7 12.5s.875 2.95 2.148 3.6c-.154.435-.238.905-.238 1.4 0 2.21 1.79 4 4 4 .495 0 .965-.084 1.4-.238.64 1.263 2.01 2.138 3.59 2.138s2.95-.875 3.6-2.148c.435.154.905.238 1.4.238 2.21 0 4-1.79 4-4 0-.495-.084-.965-.238-1.4 1.273-.65 2.148-2.02 2.148-3.6zm-12.7 4.29l-4.3-4.3 1.41-1.41 2.89 2.89 6.89-6.89 1.41 1.41-8.3 8.3z" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" aria-label="Verified account" className="size-4 fill-[#1d9bf0] shrink-0">
+              <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.79-4-4-4-.495 0-.965.084-1.4.238C14.55 2.475 13.18 1.6 11.6 1.6S8.65 2.475 8.01 3.738c-.435-.154-.905-.238-1.4-.238-2.21 0-4 1.79-4 4 0 .495.084.965.238 1.4C1.575 9.55.7 10.92.7 12.5s.875 2.95 2.148 3.6c-.154.435-.238.905-.238 1.4 0 2.21 1.79 4 4 4 .495 0 .965-.084 1.4-.238.64 1.263 2.01 2.138 3.59 2.138s2.95-.875 3.6-2.148c.435.154.905.238 1.4.238 2.21 0 4-1.79 4-4 0-.495-.084-.965-.238-1.4 1.273-.65 2.148-2.02 2.148-3.6zm-12.7 4.29l-4.3-4.3 1.41-1.41 2.89 2.89 6.89-6.89 1.41 1.41-8.3 8.3z" />
+            </svg>
           )}
 
-          {/* Social Stats: Live Clicks & Time */}
-          <div className="flex items-center gap-3 text-[11px] text-zinc-500 font-medium mt-1">
-            <span className="flex items-center gap-1 text-emerald-400 font-mono">
-              <span className="size-1.5 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
-              {formatNumber(item.clickCount)} profile visits
-            </span>
+          {/* Handle */}
+          <span className="text-xs sm:text-sm text-[#71767b] font-mono">
+            {handle}
+          </span>
 
-            <span>•</span>
-            <span>{timeAgo(item.createdAt)}</span>
+          <span className="text-[#71767b] text-xs">·</span>
+          <span className="text-xs text-[#71767b]">{timeAgo(item.createdAt)}</span>
+
+          {isTop1 ? (
+            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 ml-auto sm:ml-1">
+              👑 #1 APEX SPOTLIGHT
+            </span>
+          ) : null}
+        </div>
+
+        {/* Line 2: Creator Bio */}
+        {item.description && (
+          <p className="text-xs sm:text-sm text-[#e7e9ea] leading-relaxed line-clamp-2 pt-0.5">
+            {renderBio(item.description)}
+          </p>
+        )}
+
+        {/* Line 3: Social & Rank Metrics Bar */}
+        <div className="flex items-center gap-4 text-xs text-[#71767b] pt-1.5">
+          <div className="flex items-center gap-1.5 font-mono text-[#00ba7c]">
+            <span className="size-1.5 rounded-full bg-[#00ba7c] inline-block animate-pulse"></span>
+            <span>{formatNumber(item.clickCount)} visits</span>
+          </div>
+
+          <div className="flex items-center gap-1 font-mono text-[#71767b]">
+            <span>Valuation:</span>
+            <strong className={`font-bold ${isTop1 ? 'text-amber-400' : 'text-white'}`}>
+              {formatCurrency(item.totalBidAmount)}
+            </strong>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-1 text-[#71767b] hover:text-[#1d9bf0] transition">
+            <span>x.com/{rawHandle}</span>
+            <ArrowUpRight className="size-3" />
           </div>
         </div>
       </div>
 
-      {/* Right section: Valuation + Outbid Action */}
-      <div className="flex items-center gap-2.5 sm:gap-3 shrink-0 relative z-10">
-        <div className="text-right hidden sm:block">
-          <span className="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wider">
-            Valuation
-          </span>
-          <span className={`font-mono font-black text-sm sm:text-base ${
-            isTop1 ? 'text-amber-400' : isTop2 ? 'text-slate-200' : isTop3 ? 'text-amber-300' : 'text-white'
-          }`}>
-            {formatCurrency(item.totalBidAmount)}
-          </span>
-        </div>
-
-        {/* Dedicated Outbid Button with stopPropagation */}
+      {/* Right: Outbid Action Button */}
+      <div className="shrink-0 pt-0.5">
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             onClaimRank(item.totalBidAmount + 1);
           }}
-          className={`py-2 px-3 sm:px-3.5 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 shadow-sm active:scale-95 ${
+          className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-extrabold transition-all flex items-center gap-1.5 active:scale-95 shadow-sm ${
             isTop1
-              ? 'bg-amber-400 hover:bg-amber-300 text-zinc-950 shadow-amber-500/20 font-black'
-              : isTop2
-              ? 'bg-white hover:bg-zinc-200 text-zinc-950 font-bold'
-              : isTop3
-              ? 'bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold'
-              : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-white/10 hover:border-white/20'
+              ? 'x-btn-gold'
+              : 'x-btn-primary'
           }`}
         >
-          <Zap className={`size-3.5 ${isTop1 || isTop2 || isTop3 ? 'fill-zinc-950' : 'text-amber-400'}`} />
+          <Zap className="size-3.5 fill-current" />
           <span>Outbid</span>
         </button>
       </div>
