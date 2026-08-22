@@ -110,8 +110,9 @@ export async function POST(req: NextRequest) {
         status: item.status,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating bid:', error);
-    return NextResponse.json({ error: 'Failed to process bid' }, { status: 500 });
+    const errorMessage = error?.message || 'Database or payment initialization error';
+    return NextResponse.json({ error: `Failed to process bid: ${errorMessage}` }, { status: 500 });
   }
 }
